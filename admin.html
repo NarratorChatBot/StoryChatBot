@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - My Story Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        main {
+            padding: 20px;
+        }
+        .admin-section {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .admin-section h2 {
+            margin-top: 0;
+        }
+        .admin-section textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+    </header>
+    <main>
+        <!-- Backstory Management -->
+        <div class="admin-section">
+            <h2>Backstory Management</h2>
+            <textarea id="botBackstory" placeholder="Gib die Backstory des Bots hier ein..."></textarea>
+            <button onclick="saveBackstory()">Backstory Speichern</button>
+        </div>
+
+        <!-- Persona Management -->
+        <div class="admin-section">
+            <h2>Persona Management</h2>
+            <textarea id="personaInput" placeholder="Füge hier neue Personas hinzu (JSON-Format)..."></textarea>
+            <button onclick="savePersonas()">Personas Speichern</button>
+        </div>
+
+        <!-- User Management -->
+        <div class="admin-section">
+            <h2>Benutzerverwaltung</h2>
+            <button onclick="viewUsers()">Benutzer anzeigen</button>
+            <div id="userList" style="margin-top: 10px;"></div>
+        </div>
+
+        <!-- Reset Data -->
+        <div class="admin-section">
+            <h2>Systemsteuerung</h2>
+            <button onclick="resetData()">Daten zurücksetzen</button>
+        </div>
+    </main>
+
+    <script>
+        function saveBackstory() {
+            const backstory = document.getElementById('botBackstory').value;
+            localStorage.setItem('botBackstory', backstory);
+            alert('Backstory gespeichert!');
+        }
+
+        function savePersonas() {
+            const personas = document.getElementById('personaInput').value;
+            try {
+                const parsedPersonas = JSON.parse(personas);
+                localStorage.setItem('botPersonas', JSON.stringify(parsedPersonas));
+                alert('Personas gespeichert!');
+            } catch (error) {
+                alert('Fehler: Bitte stellen Sie sicher, dass die Personas im korrekten JSON-Format sind.');
+            }
+        }
+
+        function viewUsers() {
+            const username = localStorage.getItem('username');
+            const email = localStorage.getItem('email');
+            const role = localStorage.getItem('role');
+            
+            const userList = document.getElementById('userList');
+            userList.innerHTML = `
+                <p><strong>Benutzername:</strong> ${username}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Rolle:</strong> ${role}</p>
+            `;
+        }
+
+        function resetData() {
+            if (confirm('Sind Sie sicher, dass Sie alle Daten zurücksetzen möchten?')) {
+                localStorage.clear();
+                alert('Alle Daten wurden zurückgesetzt!');
+            }
+        }
+    </script>
+</body>
+</html>
