@@ -52,11 +52,22 @@
         .login-container button:hover {
             background-color: #45a049;
         }
+        .toggle-link {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            color: #007BFF;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .toggle-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <h1>Willkommen!</h1>
+        <h1 id="formTitle">Willkommen!</h1>
         <form id="loginForm" onsubmit="handleLogin(event)">
             <label for="username">Benutzername:</label>
             <input type="text" id="username" name="username" placeholder="Gib deinen Namen ein" required>
@@ -64,35 +75,78 @@
             <label for="email">E-Mail:</label>
             <input type="email" id="email" name="email" placeholder="Gib deine E-Mail ein" required>
 
-            <label for="role">Rolle:</label>
+            <label for="password">Passwort:</label>
+            <input type="password" id="password" name="password" placeholder="Gib dein Passwort ein" required>
+
+            <label for="role" id="roleLabel">Rolle:</label>
             <select id="role" name="role" required>
                 <option value="user">Benutzer</option>
                 <option value="admin">Admin</option>
             </select>
 
-            <button type="submit">Anmelden</button>
+            <button type="submit" id="submitButton">Anmelden</button>
         </form>
+        <a class="toggle-link" onclick="toggleForm()" id="toggleLink">Noch keinen Account? Registrieren</a>
     </div>
 
     <script>
+        let isLogin = true; // Status ob Login oder Registrierung
+
+        function toggleForm() {
+            const formTitle = document.getElementById('formTitle');
+            const roleLabel = document.getElementById('roleLabel');
+            const roleSelect = document.getElementById('role');
+            const toggleLink = document.getElementById('toggleLink');
+            const submitButton = document.getElementById('submitButton');
+
+            if (isLogin) {
+                // Wechsel zu Registrierung
+                formTitle.textContent = 'Registrieren';
+                roleLabel.style.display = 'block';
+                roleSelect.style.display = 'block';
+                toggleLink.textContent = 'Bereits einen Account? Anmelden';
+                submitButton.textContent = 'Registrieren';
+                isLogin = false;
+            } else {
+                // Wechsel zu Login
+                formTitle.textContent = 'Willkommen!';
+                roleLabel.style.display = 'none';
+                roleSelect.style.display = 'none';
+                toggleLink.textContent = 'Noch keinen Account? Registrieren';
+                submitButton.textContent = 'Anmelden';
+                isLogin = true;
+            }
+        }
+
         function handleLogin(event) {
             event.preventDefault(); // Verhindert das Standardformularverhalten
 
-            // Benutzerdaten abrufen
             const username = document.getElementById('username').value;
             const email = document.getElementById('email').value;
-            const role = document.getElementById('role').value;
+            const password = document.getElementById('password').value;
 
-            // Benutzerinformationen im lokalen Speicher speichern
-            localStorage.setItem('username', username);
-            localStorage.setItem('email', email);
-            localStorage.setItem('role', role);
+            if (isLogin) {
+                // Login-Logik
+                const storedPassword = localStorage.getItem(`${email}_password`);
 
-            // Weiterleitung basierend auf Rolle
-            if (role === 'admin') {
-                window.location.href = "admin.html"; // Admin-Seite
+                if (storedPassword && storedPassword === password) {
+                    const role = localStorage.getItem(`${email}_role`);
+                    alert('Erfolgreich angemeldet!');
+                    if (role === 'admin') {
+                        window.location.href = "admin.html";
+                    } else {
+                        window.location.href = "main.html";
+                    }
+                } else {
+                    alert('Ungültige Anmeldedaten!');
+                }
             } else {
-                window.location.href = "main.html"; // Benutzer-Hauptseite
+                // Registrierung-Logik
+                localStorage.setItem(`${email}_username`, username);
+                localStorage.setItem(`${email}_password`, password);
+                localStorage.setItem(`${email}_role`, document.getElementById('role').value);
+                alert('Registrierung erfolgreich! Sie können sich jetzt anmelden.');
+                toggleForm();
             }
         }
     </script>
