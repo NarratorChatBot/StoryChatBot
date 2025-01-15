@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bot-Antworten bearbeiten</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .persona-container { margin-bottom: 20px; }
+    textarea { width: 100%; height: 80px; margin-top: 5px; }
+    button { margin-top: 10px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+
+<h1>Bearbeite die Bot-Antworten und Backstories</h1>
+
+<div id="edit-container">
+  <!-- Bearbeitungsfelder werden hier dynamisch hinzugefügt -->
+</div>
+
+<button id="save">Änderungen speichern</button>
+<button><a href="main.html">Zurück zur Hauptseite</a></button>
+
+<script>
+// Initiale Persona-Daten
+const personas = {
+  satoruGojo: { botName: "Satoru Gojo", backstory: "", customResponses: {} },
+  diablo: { botName: "Diablo", backstory: "", customResponses: {} },
+  ainzOoalGown: { botName: "Ainz Ooal Gown", backstory: "", customResponses: {} },
+  sukuna: { botName: "Sukuna", backstory: "", customResponses: {} },
+  pessimistServant: { botName: "Pessimistischer Diener", backstory: "", customResponses: {} },
+};
+
+// Lade gespeicherte Daten aus dem localStorage
+function loadSavedData() {
+  const savedData = JSON.parse(localStorage.getItem('customResponses')) || {};
+  for (const persona in savedData) {
+    if (personas[persona]) {
+      personas[persona].customResponses = savedData[persona].customResponses || {};
+      personas[persona].backstory = savedData[persona].backstory || "";
+    }
+  }
+}
+
+// Generiere das Bearbeitungs-Interface
+function generateEditFields() {
+  const container = document.getElementById("edit-container");
+  for (const key in personas) {
+    const persona = personas[key];
+    const personaDiv = document.createElement("div");
+    personaDiv.className = "persona-container";
+
+    personaDiv.innerHTML = `
+      <h2>${persona.botName}</h2>
+      <label>Backstory:</label>
+      <textarea id="backstory-${key}">${persona.backstory}</textarea>
+      <label>Antworten (JSON-Format):</label>
+      <textarea id="responses-${key}">${JSON.stringify(persona.customResponses, null, 2)}</textarea>
+    `;
+    container.appendChild(personaDiv);
+  }
+}
+
+// Speichere die Änderungen
+function saveChanges() {
+  const savedData = {};
+  for (const key in personas) {
+    const backstoryField = document.getElementById(`backstory-${key}`);
+    const responsesField = document.getElementById(`responses-${key}`);
+    savedData[key] = {
+      botName: personas[key].botName,
+      backstory: backstoryField.value,
+      customResponses: JSON.parse(responsesField.value || "{}"),
+    };
+  }
+  localStorage.setItem('customResponses', JSON.stringify(savedData));
+  alert("Änderungen wurden gespeichert!");
+}
+
+// Event-Listener für das Speichern
+document.getElementById("save").addEventListener("click", saveChanges);
+
+// Initialisierung
+loadSavedData();
+generateEditFields();
+</script>
+
+</body>
+</html>

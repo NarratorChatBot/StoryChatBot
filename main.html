@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interaktiver Bot mit mehreren Personas</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .message { margin: 10px; padding: 10px; border: 1px solid #141010; border-radius: 5px; }
+    .user { background-color: rgb(12, 22, 26); }
+    .bot { background-color: lightgreen; }
+    #persona-selector { margin-top: 20px; }
+    label { display: block; margin-bottom: 5px; }
+    input[type="text"] { width: 100%; padding: 10px; margin-bottom: 10px; }
+    button { padding: 10px 20px; }
+  </style>
+</head>
+<body>
+
+<div id="messages"></div>
+
+<div id="persona-selector">
+  <h3>Wähle eine Persona:</h3>
+  <select id="personaSelect">
+    <option value="satoruGojo">Satoru Gojo</option>
+    <option value="diablo">Diablo</option>
+    <option value="ainzOoalGown">Ainz Ooal Gown</option>
+    <option value="sukuna">Sukuna</option>
+    <option value="pessimistServant">Pessimistischer Diener</option>
+  </select>
+  <button id="changePersona">Persona wechseln</button>
+</div>
+
+<button><a href="customize.html">Bot-Antworten und Backstories bearbeiten</a></button>
+
+<input type="text" id="input" placeholder="Schreib eine Nachricht...">
+<button id="send">Senden</button>
+
+<script>
+// Initiale Bot-Konfiguration mit mehreren Personas
+const personas = {
+  satoruGojo: {
+    botName: "Satoru Gojo",
+    defaultResponse: "Ich bin mir nicht sicher, wie ich darauf antworten soll, aber ich bin der Stärkste!",
+    customResponses: {},
+    backstory: ""
+  },
+  diablo: {
+    botName: "Diablo",
+    defaultResponse: "Was willst du? Es gibt nichts, was ich für dich tun möchte.",
+    customResponses: {},
+    backstory: ""
+  },
+  ainzOoalGown: {
+    botName: "Ainz Ooal Gown",
+    defaultResponse: "Es scheint, als ob du etwas von mir möchtest. Was ist dein Anliegen?",
+    customResponses: {},
+    backstory: ""
+  },
+  sukuna: {
+    botName: "Sukuna",
+    defaultResponse: "Was willst du, Mensch? Hast du wirklich den Mut, mit mir zu sprechen?",
+    customResponses: {},
+    backstory: ""
+  },
+  pessimistServant: {
+    botName: "Pessimistischer Diener",
+    defaultResponse: "Es gibt eigentlich nichts Positives zu sagen, aber was auch immer.",
+    customResponses: {},
+    backstory: ""
+  }
+};
+
+// Aktuelle Persona
+let currentPersona = personas.satoruGojo;
+
+// Nachrichten dem Chat hinzufügen
+function addMessage(text, sender) {
+  const messageDiv = document.createElement("div");
+  messageDiv.classList.add("message", sender);
+  messageDiv.textContent = text;
+  document.getElementById("messages").appendChild(messageDiv);
+  document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+}
+
+// Bot-Antwort generieren
+function getBotResponse(userMessage) {
+  const response = currentPersona.customResponses[userMessage];
+  const backstoryText = currentPersona.backstory 
+    ? `\n(Hintergrund: ${currentPersona.backstory})`
+    : "";
+  return (response || currentPersona.defaultResponse) + backstoryText;
+}
+
+// Lade benutzerdefinierte Antworten und Backstories aus dem localStorage
+function loadCustomResponses() {
+  const savedData = JSON.parse(localStorage.getItem("customResponses"));
+  if (savedData) {
+    for (const persona in savedData) {
+      if (personas[persona]) {
+        personas[persona].customResponses = savedData[persona].customResponses || {};
+        personas[persona].backstory = savedData[persona].backstory || "";
+      }
+    }
+  }
+}
+
+// Alle Nachrichten der alten Persona löschen
+function clearMessages() {
+  document.getElementById("messages").innerHTML = "";
+}
+
+// Event-Listener für den Senden-Button
+document.getElementById("send").addEventListener("click", () => {
+  const userMessage = document.getElementById("input").value.trim();
+  if (userMessage) {
+    addMessage(userMessage, "user"); // Nachricht des Nutzers
+    const botResponse = getBotResponse(userMessage); // Bot-Antwort generieren
+    addMessage(`${currentPersona.botName}: ${botResponse}`, "bot");
+    document.getElementById("input").value = ""; // Eingabefeld leeren
+  }
+});
+
+// Event-Listener für den Persona-Wechsel
+document.getElementById("changePersona").addEventListener("click", () => {
+  const selectedPersonaKey = document.getElementById("personaSelect").value;
+  clearMessages(); // Alte Nachrichten entfernen
+  currentPersona = personas[selectedPersonaKey]; // Neue Persona setzen
+  addMessage(`${currentPersona.botName}: Hallo, ich bin jetzt ${currentPersona.botName}. Was möchtest du tun?`, "bot");
+});
+
+// Initialisierung
+loadCustomResponses();
+addMessage(`${currentPersona.botName}: Willkommen in meiner Welt! Was möchtest du tun?`, "bot");
+</script>
+
+</body>
+</html>
+
