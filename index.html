@@ -64,6 +64,12 @@
             <label for="email">E-Mail:</label>
             <input type="email" id="email" name="email" placeholder="Gib deine E-Mail ein" required>
 
+            <label for="role">Rolle:</label>
+            <select id="role" name="role" required>
+                <option value="user">Benutzer</option>
+                <option value="admin">Admin</option>
+            </select>
+
             <button type="submit">Anmelden</button>
         </form>
     </div>
@@ -75,13 +81,19 @@
             // Benutzerdaten abrufen
             const username = document.getElementById('username').value;
             const email = document.getElementById('email').value;
+            const role = document.getElementById('role').value;
 
             // Benutzerinformationen im lokalen Speicher speichern
             localStorage.setItem('username', username);
             localStorage.setItem('email', email);
+            localStorage.setItem('role', role);
 
-            // Weiterleitung zur Hauptseite
-            window.location.href = "main.html";
+            // Weiterleitung basierend auf Rolle
+            if (role === 'admin') {
+                window.location.href = "admin.html"; // Admin-Seite
+            } else {
+                window.location.href = "main.html"; // Benutzer-Hauptseite
+            }
         }
     </script>
 </body>
