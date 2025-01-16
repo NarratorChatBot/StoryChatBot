@@ -112,7 +112,6 @@
             const submitButton = document.getElementById('submitButton');
 
             if (isLogin) {
-                // Wechsel zu Registrierung
                 formTitle.textContent = 'Registrieren';
                 loginLabel.style.display = 'none';
                 registerFields.style.display = 'block';
@@ -120,7 +119,6 @@
                 submitButton.textContent = 'Registrieren';
                 isLogin = false;
             } else {
-                // Wechsel zu Login
                 formTitle.textContent = 'Willkommen!';
                 loginLabel.style.display = 'block';
                 registerFields.style.display = 'none';
@@ -137,20 +135,13 @@
             const password = document.getElementById('password').value;
 
             if (isLogin) {
-                // Login-Logik
                 if (usernameOrEmail === adminUsername && password === adminPassword) {
                     alert('Erfolgreich als Admin angemeldet!');
                     window.location.href = "admin.html";
                 } else {
-                    const storedPasswordByEmail = localStorage.getItem(`${usernameOrEmail}_password`);
-                    const storedPasswordByUsername = localStorage.getItem(`${localStorage.getItem(`${usernameOrEmail}_email`)}_password`);
-                    const storedPassword = storedPasswordByEmail || storedPasswordByUsername;
-
+                    const storedPassword = localStorage.getItem(`${usernameOrEmail}_password`);
                     if (storedPassword && storedPassword === password) {
-                        const roleByEmail = localStorage.getItem(`${usernameOrEmail}_role`);
-                        const roleByUsername = localStorage.getItem(`${localStorage.getItem(`${usernameOrEmail}_email`)}_role`);
-                        const role = roleByEmail || roleByUsername;
-                        
+                        const role = localStorage.getItem(`${usernameOrEmail}_role`);
                         alert('Erfolgreich angemeldet!');
                         if (role === 'user') {
                             window.location.href = "main.html";
@@ -162,7 +153,6 @@
                     }
                 }
             } else {
-                // Registrierung-Logik
                 const username = document.getElementById('registerUsername').value;
                 const email = document.getElementById('registerEmail').value;
                 localStorage.setItem(`${email}_username`, username);
