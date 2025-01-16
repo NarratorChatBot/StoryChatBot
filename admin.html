@@ -3,120 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - My Story Chatbot</title>
+    <title>Login - My Story Chatbot</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            padding: 0;
         }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-        }
-        main {
-            padding: 20px;
-        }
-        .admin-section {
+        .login-container {
             background: #fff;
             padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
+            border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
         }
-        .admin-section h2 {
-            margin-top: 0;
+        .login-container h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
         }
-        .admin-section textarea {
+        .login-container label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .login-container input {
             width: 100%;
-            height: 100px;
-            margin-bottom: 10px;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
         }
-        button {
+        .login-container button {
+            width: 100%;
+            padding: 10px;
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 10px 15px;
             border-radius: 5px;
+            font-size: 16px;
             cursor: pointer;
-            font-size: 14px;
         }
-        button:hover {
+        .login-container button:hover {
             background-color: #45a049;
+        }
+        .toggle-link {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            color: #007BFF;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .toggle-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Admin Dashboard</h1>
-    </header>
-    <main>
-        <!-- Backstory Management -->
-        <div class="admin-section">
-            <h2>Backstory Management</h2>
-            <textarea id="botBackstory" placeholder="Gib die Backstory des Bots hier ein..."></textarea>
-            <button onclick="saveBackstory()">Backstory Speichern</button>
-        </div>
+    <div class="login-container">
+        <h1 id="formTitle">Willkommen!</h1>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <label for="usernameOrEmail">Benutzername oder E-Mail:</label>
+            <input type="text" id="usernameOrEmail" name="usernameOrEmail" placeholder="Gib deinen Namen oder E-Mail ein" required>
 
-        <!-- Persona Management -->
-        <div class="admin-section">
-            <h2>Persona Management</h2>
-            <textarea id="personaInput" placeholder="Füge hier neue Personas hinzu (JSON-Format)..."></textarea>
-            <button onclick="savePersonas()">Personas Speichern</button>
-        </div>
+            <label for="password">Passwort:</label>
+            <input type="password" id="password" name="password" placeholder="Gib dein Passwort ein" required>
 
-        <!-- User Management -->
-        <div class="admin-section">
-            <h2>Benutzerverwaltung</h2>
-            <button onclick="viewUsers()">Benutzer anzeigen</button>
-            <div id="userList" style="margin-top: 10px;"></div>
-        </div>
-
-        <!-- Reset Data -->
-        <div class="admin-section">
-            <h2>Systemsteuerung</h2>
-            <button onclick="resetData()">Daten zurücksetzen</button>
-        </div>
-    </main>
+            <button type="submit" id="submitButton">Anmelden</button>
+        </form>
+        <a class="toggle-link" onclick="toggleForm()" id="toggleLink">Noch keinen Account? Registrieren</a>
+    </div>
 
     <script>
-        function saveBackstory() {
-            const backstory = document.getElementById('botBackstory').value;
-            localStorage.setItem('botBackstory', backstory);
-            alert('Backstory gespeichert!');
-        }
+        let isLogin = true; // Status ob Login oder Registrierung
+        const adminUsername = "NarratorAdmin"; // Admin username
+        const adminPassword = "LoliXxHUnter69"; // Admin password (replace with your actual password)
 
-        function savePersonas() {
-            const personas = document.getElementById('personaInput').value;
-            try {
-                const parsedPersonas = JSON.parse(personas);
-                localStorage.setItem('botPersonas', JSON.stringify(parsedPersonas));
-                alert('Personas gespeichert!');
-            } catch (error) {
-                alert('Fehler: Bitte stellen Sie sicher, dass die Personas im korrekten JSON-Format sind.');
+        function toggleForm() {
+            const formTitle = document.getElementById('formTitle');
+            const toggleLink = document.getElementById('toggleLink');
+            const submitButton = document.getElementById('submitButton');
+
+            if (isLogin) {
+                // Wechsel zu Registrierung
+                formTitle.textContent = 'Registrieren';
+                toggleLink.textContent = 'Bereits einen Account? Anmelden';
+                submitButton.textContent = 'Registrieren';
+                isLogin = false;
+            } else {
+                // Wechsel zu Login
+                formTitle.textContent = 'Willkommen!';
+                toggleLink.textContent = 'Noch keinen Account? Registrieren';
+                submitButton.textContent = 'Anmelden';
+                isLogin = true;
             }
         }
 
-        function viewUsers() {
-            const username = localStorage.getItem('username');
-            const email = localStorage.getItem('email');
-            const role = localStorage.getItem('role');
-            
-            const userList = document.getElementById('userList');
-            userList.innerHTML = `
-                <p><strong>Benutzername:</strong> ${username}</p>
-                <p><strong>Email:</strong> ${email}</p>
-                <p><strong>Rolle:</strong> ${role}</p>
-            `;
-        }
+        function handleLogin(event) {
+            event.preventDefault(); // Verhindert das Standardformularverhalten
 
-        function resetData() {
-            if (confirm('Sind Sie sicher, dass Sie alle Daten zurücksetzen möchten?')) {
-                localStorage.clear();
-                alert('Alle Daten wurden zurückgesetzt!');
+            const usernameOrEmail = document.getElementById('usernameOrEmail').value;
+            const password = document.getElementById('password').value;
+
+            if (isLogin) {
+                // Login-Logik
+                if (usernameOrEmail === adminUsername && password === adminPassword) {
+                    alert('Erfolgreich als Admin angemeldet!');
+                    window.location.href = "admin.html";
+                } else {
+                    const storedPasswordByEmail = localStorage.getItem(`${usernameOrEmail}_password`);
+                    const storedPasswordByUsername = localStorage.getItem(`${localStorage.getItem(`${usernameOrEmail}_email`)}_password`);
+                    const storedPassword = storedPasswordByEmail || storedPasswordByUsername;
+
+                    if (storedPassword && storedPassword === password) {
+                        const roleByEmail = localStorage.getItem(`${usernameOrEmail}_role`);
+                        const roleByUsername = localStorage.getItem(`${localStorage.getItem(`${usernameOrEmail}_email`)}_role`);
+                        const role = roleByEmail || roleByUsername;
+                        
+                        alert('Erfolgreich angemeldet!');
+                        if (role === 'user') {
+                            window.location.href = "main.html";
+                        } else {
+                            alert('Unauthorized access to admin page!');
+                        }
+                    } else {
+                        alert('Ungültige Anmeldedaten!');
+                    }
+                }
+            } else {
+                // Registrierung-Logik
+                const email = document.getElementById('usernameOrEmail').value;
+                const username = document.getElementById('usernameOrEmail').value;
+                localStorage.setItem(`${email}_username`, username);
+                localStorage.setItem(`${email}_password`, password);
+                localStorage.setItem(`${email}_role`, 'user');
+                alert('Registrierung erfolgreich! Sie können sich jetzt anmelden.');
+                toggleForm();
             }
         }
     </script>
