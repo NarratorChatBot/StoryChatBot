@@ -63,62 +63,67 @@
         .toggle-link:hover {
             text-decoration: underline;
         }
+        .forgot-password {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .forgot-password a {
+            color: #007BFF;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
         <h1 id="formTitle">Willkommen!</h1>
         <form id="loginForm" onsubmit="handleLogin(event)">
-            <label for="usernameOrEmail">Benutzername oder E-Mail:</label>
+            <div id="registerFields" style="display: none;">
+                <label for="registerUsername">Benutzername:</label>
+                <input type="text" id="registerUsername" name="registerUsername" placeholder="Gib deinen Benutzernamen ein" required>
+                <label for="registerEmail">E-Mail:</label>
+                <input type="email" id="registerEmail" name="registerEmail" placeholder="Gib deine E-Mail ein" required>
+            </div>
+            <label for="usernameOrEmail" id="loginLabel">Benutzername oder E-Mail:</label>
             <input type="text" id="usernameOrEmail" name="usernameOrEmail" placeholder="Gib deinen Namen oder E-Mail ein" required>
-
             <label for="password">Passwort:</label>
             <input type="password" id="password" name="password" placeholder="Gib dein Passwort ein" required>
-
-            <label for="role" id="roleLabel" style="display: none;">Rolle:</label>
-            <select id="role" name="role" required style="display: none;">
-                <option value="user">Benutzer</option>
-                <option value="admin">Admin</option>
-            </select>
-
             <button type="submit" id="submitButton">Anmelden</button>
         </form>
+        <div class="forgot-password">
+            <a onclick="forgotPassword()">Passwort vergessen?</a>
+        </div>
         <a class="toggle-link" onclick="toggleForm()" id="toggleLink">Noch keinen Account? Registrieren</a>
     </div>
 
     <script>
         let isLogin = true; // Status ob Login oder Registrierung
-        const adminEmail = "autochessmaster98@gmail.com"; // Admin email
-
-        document.addEventListener('keydown', function(event) {
-            if (event.ctrlKey && event.shiftKey && event.key === 'A') {
-                document.getElementById('roleLabel').style.display = 'block';
-                document.getElementById('role').style.display = 'block';
-            }
-        });
+        const adminUsername = "NarratorAdmin"; // Admin username
+        const adminPassword = "your_admin_password"; // Admin password (replace with your actual password)
 
         function toggleForm() {
             const formTitle = document.getElementById('formTitle');
-            const roleLabel = document.getElementById('roleLabel');
-            const roleSelect = document.getElementById('role');
+            const loginLabel = document.getElementById('loginLabel');
+            const registerFields = document.getElementById('registerFields');
             const toggleLink = document.getElementById('toggleLink');
             const submitButton = document.getElementById('submitButton');
 
             if (isLogin) {
                 // Wechsel zu Registrierung
                 formTitle.textContent = 'Registrieren';
-                if (event.ctrlKey && event.shiftKey && event.key === 'A') {
-                    roleLabel.style.display = 'block';
-                    roleSelect.style.display = 'block';
-                }
+                loginLabel.style.display = 'none';
+                registerFields.style.display = 'block';
                 toggleLink.textContent = 'Bereits einen Account? Anmelden';
                 submitButton.textContent = 'Registrieren';
                 isLogin = false;
             } else {
                 // Wechsel zu Login
                 formTitle.textContent = 'Willkommen!';
-                roleLabel.style.display = 'none';
-                roleSelect.style.display = 'none';
+                loginLabel.style.display = 'block';
+                registerFields.style.display = 'none';
                 toggleLink.textContent = 'Noch keinen Account? Registrieren';
                 submitButton.textContent = 'Anmelden';
                 isLogin = true;
@@ -133,35 +138,59 @@
 
             if (isLogin) {
                 // Login-Logik
-                const storedPasswordByEmail = localStorage.getItem(`${usernameOrEmail}_password`);
-                const storedPasswordByUsername = localStorage.getItem(`${localStorage.getItem(`${usernameOrEmail}_email`)}_password`);
-                const storedPassword = storedPasswordByEmail || storedPasswordByUsername;
-
-                if (storedPassword && storedPassword === password) {
-                    const roleByEmail = localStorage.getItem(`${usernameOrEmail}_role`);
-                    const roleByUsername = localStorage.getItem(`${localStorage.getItem(`${usernameOrEmail}_email`)}_role`);
-                    const role = roleByEmail || roleByUsername;
-                    
-                    alert('Erfolgreich angemeldet!');
-                    if (role === 'admin' && usernameOrEmail === adminEmail) {
-                        window.location.href = "admin.html";
-                    } else if (role === 'user') {
-                        window.location.href = "main.html";
-                    } else {
-                        alert('Unauthorized access to admin page!');
-                    }
+                if (usernameOrEmail === adminUsername && password === adminPassword) {
+                    alert('Erfolgreich als Admin angemeldet!');
+                    window.location.href = "admin.html";
                 } else {
-                    alert('Ungültige Anmeldedaten!');
+                    const storedPasswordByEmail = localStorage.getItem(`${usernameOrEmail}_password`);
+                    const storedPasswordByUsername = localStorage.getItem(`${localStorage.getItem(`${usernameOrEmail}_email`)}_password`);
+                    const storedPassword = storedPasswordByEmail || storedPasswordByUsername;
+
+                    if (storedPassword && storedPassword === password) {
+                        const roleByEmail = localStorage.getItem(`${usernameOrEmail}_role`);
+                        const roleByUsername = localStorage.getItem(`${localStorage.getItem(`${usernameOrEmail}_email`)}_role`);
+                        const role = roleByEmail || roleByUsername;
+                        
+                        alert('Erfolgreich angemeldet!');
+                        if (role === 'user') {
+                            window.location.href = "main.html";
+                        } else {
+                            alert('Unauthorized access to admin page!');
+                        }
+                    } else {
+                        alert('Ungültige Anmeldedaten!');
+                    }
                 }
             } else {
                 // Registrierung-Logik
-                const email = document.getElementById('usernameOrEmail').value;
-                const username = document.getElementById('usernameOrEmail').value;
+                const username = document.getElementById('registerUsername').value;
+                const email = document.getElementById('registerEmail').value;
                 localStorage.setItem(`${email}_username`, username);
                 localStorage.setItem(`${email}_password`, password);
-                localStorage.setItem(`${email}_role`, document.getElementById('role').value);
+                localStorage.setItem(`${email}_role`, 'user');
                 alert('Registrierung erfolgreich! Sie können sich jetzt anmelden.');
                 toggleForm();
+            }
+        }
+
+        function forgotPassword() {
+            const email = prompt("Bitte geben Sie Ihre E-Mail-Adresse ein:");
+            if (email) {
+                fetch('/forgot-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                })
+                .then(response => response.text())
+                .then(data => {
+                    alert(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Fehler beim Senden der E-Mail');
+                });
             }
         }
     </script>
