@@ -1,155 +1,171 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bot-Antworten bearbeiten</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .persona-container { margin-bottom: 20px; }
-    textarea { width: 100%; height: 80px; margin-top: 5px; }
-    button { margin-top: 10px; padding: 10px 20px; }
-    .success-message { color: green; margin-top: 10px; }
-    .error-message { color: red; margin-top: 10px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customize Bots</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        header h1 {
+            font-size: 2.5rem;
+        }
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        textarea {
+            width: 100%;
+            height: 80px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            color: white;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .language-selector {
+            margin-top: 20px;
+            text-align: center;
+        }
+        select {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+    </style>
+
+    <!-- i18next Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/i18next/21.6.3/i18next.min.js"></script>
 </head>
 <body>
+    <header>
+        <h1 id="customizeTitle">Customize Your Bots</h1>
+    </header>
 
-<h1>Bearbeite oder erstelle eigene Bots</h1>
+    <div class="content">
+        <form id="botForm">
+            <label for="botName" id="botNameLabel">Bot Name:</label>
+            <textarea id="botName" placeholder="Enter your bot's name"></textarea>
 
-<div id="edit-container">
-  <!-- Bearbeitungsfelder werden hier dynamisch hinzugefügt -->
-</div>
+            <label for="botBackstory" id="botBackstoryLabel">Backstory:</label>
+            <textarea id="botBackstory" placeholder="Enter your bot's backstory"></textarea>
 
-<h2>Eigenen Bot erstellen</h2>
-<form id="createBotForm">
-  <label for="botName">Bot-Name:</label>
-  <input type="text" id="botName" placeholder="Gib den Namen deines Bots ein" required>
+            <label for="botResponses" id="botResponsesLabel">Custom Responses (JSON):</label>
+            <textarea id="botResponses" placeholder="Enter responses in JSON format"></textarea>
 
-  <label for="botBackstory">Backstory:</label>
-  <textarea id="botBackstory" placeholder="Beschreibe die Hintergrundgeschichte deines Bots"></textarea>
+            <button type="submit" id="saveButton">Save Bot</button>
+        </form>
 
-  <label for="botResponses">Antworten (JSON-Format):</label>
-  <textarea id="botResponses" placeholder="Gib benutzerdefinierte Antworten ein"></textarea>
+        <div class="language-selector">
+            <label for="language">Choose Language:</label>
+            <select id="language" onchange="updateLanguage()">
+                <option value="en">English</option>
+                <option value="de">Deutsch</option>
+                <option value="fr">Français</option>
+            </select>
+        </div>
+    </div>
 
-  <button type="submit">Bot erstellen</button>
-</form>
+    <script>
+        // Initialize i18next
+        i18next.init({
+            lng: localStorage.getItem('preferredLanguage') || 'en', // Load preferred language from localStorage
+            resources: {
+                en: {
+                    translation: {
+                        customizeTitle: "Customize Your Bots",
+                        botNameLabel: "Bot Name:",
+                        botBackstoryLabel: "Backstory:",
+                        botResponsesLabel: "Custom Responses (JSON):",
+                        saveButton: "Save Bot"
+                    }
+                },
+                de: {
+                    translation: {
+                        customizeTitle: "Passe deine Bots an",
+                        botNameLabel: "Bot-Name:",
+                        botBackstoryLabel: "Hintergrundgeschichte:",
+                        botResponsesLabel: "Benutzerdefinierte Antworten (JSON):",
+                        saveButton: "Bot speichern"
+                    }
+                },
+                fr: {
+                    translation: {
+                        customizeTitle: "Personnalisez vos bots",
+                        botNameLabel: "Nom du bot:",
+                        botBackstoryLabel: "Histoire:",
+                        botResponsesLabel: "Réponses personnalisées (JSON):",
+                        saveButton: "Enregistrer le bot"
+                    }
+                }
+            }
+        }, function(err, t) {
+            // Initial translations
+            updateLanguage();
+        });
 
-<div id="message"></div>
+        // Function to update language based on selected option
+        function updateLanguage() {
+            const selectedLanguage = document.getElementById('language').value;
+            i18next.changeLanguage(selectedLanguage, function(err, t) {
+                document.getElementById('customizeTitle').textContent = i18next.t('customizeTitle');
+                document.getElementById('botNameLabel').textContent = i18next.t('botNameLabel');
+                document.getElementById('botBackstoryLabel').textContent = i18next.t('botBackstoryLabel');
+                document.getElementById('botResponsesLabel').textContent = i18next.t('botResponsesLabel');
+                document.getElementById('saveButton').textContent = i18next.t('saveButton');
+            });
 
-<button><a href="main.html">Zurück zur Hauptseite</a></button>
+            // Save language preference to localStorage
+            localStorage.setItem('preferredLanguage', selectedLanguage);
+        }
 
-<script>
-// Initiale Persona-Daten
-const personas = {
-  satoruGojo: { botName: "Satoru Gojo", backstory: "", customResponses: {} },
-  diablo: { botName: "Diablo", backstory: "", customResponses: {} },
-  ainzOoalGown: { botName: "Ainz Ooal Gown", backstory: "", customResponses: {} },
-  sukuna: { botName: "Sukuna", backstory: "", customResponses: {} },
-  pessimistServant: { botName: "Pessimistischer Diener", backstory: "", customResponses: {} },
-};
+        // Handle form submission
+        document.getElementById('botForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const botName = document.getElementById('botName').value;
+            const botBackstory = document.getElementById('botBackstory').value;
+            const botResponses = document.getElementById('botResponses').value;
 
-const currentUser = localStorage.getItem("currentUser") || "unknown"; // Aktuell angemeldeter Benutzer
+            try {
+                const parsedResponses = JSON.parse(botResponses);
+                alert(`Bot saved successfully!\nName: ${botName}\nBackstory: ${botBackstory}\nResponses: ${JSON.stringify(parsedResponses, null, 2)}`);
+            } catch (error) {
+                alert("Invalid JSON format for responses. Please correct it and try again.");
+            }
+        });
 
-// Lade gespeicherte Daten aus dem localStorage
-function loadSavedData() {
-  const savedData = JSON.parse(localStorage.getItem('customResponses')) || {};
-  for (const persona in savedData) {
-    if (personas[persona]) {
-      personas[persona].customResponses = savedData[persona].customResponses || {};
-      personas[persona].backstory = savedData[persona].backstory || "";
-    }
-  }
-}
-
-// Generiere das Bearbeitungs-Interface
-function generateEditFields() {
-  const container = document.getElementById("edit-container");
-  for (const key in personas) {
-    const persona = personas[key];
-    const personaDiv = document.createElement("div");
-    personaDiv.className = "persona-container";
-
-    personaDiv.innerHTML = `
-      <h2>${persona.botName}</h2>
-      <label>Backstory:</label>
-      <textarea id="backstory-${key}">${persona.backstory}</textarea>
-      <label>Antworten (JSON-Format):</label>
-      <textarea id="responses-${key}">${JSON.stringify(persona.customResponses, null, 2)}</textarea>
-    `;
-    container.appendChild(personaDiv);
-  }
-}
-
-// Speichere die Änderungen
-function saveChanges() {
-  const savedData = {};
-  let hasError = false;
-
-  for (const key in personas) {
-    const backstoryField = document.getElementById(`backstory-${key}`);
-    const responsesField = document.getElementById(`responses-${key}`);
-
-    try {
-      const customResponses = JSON.parse(responsesField.value || "{}");
-      savedData[key] = {
-        botName: personas[key].botName,
-        backstory: backstoryField.value || personas[key].backstory,
-        customResponses: customResponses,
-      };
-    } catch (e) {
-      hasError = true;
-      alert(`Fehler beim Speichern der Antworten für ${personas[key].botName}: Ungültiges JSON.`);
-    }
-  }
-
-  if (!hasError) {
-    localStorage.setItem('customResponses', JSON.stringify(savedData));
-    alert("Änderungen wurden erfolgreich gespeichert!");
-  }
-}
-
-// Event-Listener für das Erstellen eines neuen Bots
-const createBotForm = document.getElementById("createBotForm");
-createBotForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  const botName = document.getElementById("botName").value.trim();
-  const botBackstory = document.getElementById("botBackstory").value.trim();
-  const botResponses = document.getElementById("botResponses").value.trim();
-
-  if (!botName || !botBackstory || !botResponses) {
-    document.getElementById("message").textContent = "Alle Felder müssen ausgefüllt werden.";
-    document.getElementById("message").className = "error-message";
-    return;
-  }
-
-  try {
-    const parsedResponses = JSON.parse(botResponses);
-    const customBots = JSON.parse(localStorage.getItem("customBots")) || {};
-
-    customBots[botName] = {
-      botName,
-      backstory: botBackstory,
-      customResponses: parsedResponses,
-      createdBy: currentUser,
-    };
-
-    localStorage.setItem("customBots", JSON.stringify(customBots));
-    document.getElementById("message").textContent = "Bot wurde erfolgreich erstellt!";
-    document.getElementById("message").className = "success-message";
-
-    createBotForm.reset();
-  } catch (e) {
-    document.getElementById("message").textContent = "Antworten müssen im gültigen JSON-Format sein.";
-    document.getElementById("message").className = "error-message";
-  }
-});
-
-// Initialisierung
-loadSavedData();
-generateEditFields();
-</script>
-
+        // Set initial language when the page loads
+        window.onload = () => {
+            const preferredLanguage = localStorage.getItem('preferredLanguage') || 'en';
+            document.getElementById('language').value = preferredLanguage;
+            updateLanguage();
+        };
+    </script>
 </body>
 </html>
