@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Tool - Login/Register</title>
+    <title>Login Page</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -52,115 +52,111 @@
         button:hover {
             background-color: #45a049;
         }
-        .error {
-            color: red;
-            font-size: 12px;
+        .language-selector {
+            margin-top: 20px;
             text-align: center;
         }
-        .toggle-link {
-            display: block;
-            text-align: center;
-            margin-top: 10px;
-            color: #007BFF;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .toggle-link:hover {
-            text-decoration: underline;
+        select {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            outline: none;
         }
     </style>
+
+    <!-- i18next Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/i18next/21.6.3/i18next.min.js"></script>
 </head>
 <body>
     <div class="login-container">
-        <h1 id="formTitle">Login</h1>
-        <form id="loginForm" onsubmit="handleSubmit(event)">
-            <div id="registerFields" style="display: none;">
-                <label for="registerUsername">Username:</label>
-                <input type="text" id="registerUsername" placeholder="Enter your username">
+        <h1 id="loginTitle">Login</h1>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <label for="username" id="usernameLabel">Username:</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
 
-                <label for="registerEmail">Email:</label>
-                <input type="email" id="registerEmail" placeholder="Enter your email">
-            </div>
-
-            <label for="usernameOrEmail" id="loginLabel">Username or Email:</label>
-            <input type="text" id="usernameOrEmail" placeholder="Enter your username or email" required>
-
-            <label for="password">Password:</label>
-            <input type="password" id="password" placeholder="Enter your password" required>
-
-            <div class="error" id="error"></div>
+            <label for="password" id="passwordLabel">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
 
             <button type="submit" id="submitButton">Login</button>
         </form>
-        <a class="toggle-link" onclick="toggleForm()" id="toggleLink">Don't have an account? Register</a>
+
+        <div class="language-selector">
+            <label for="language">Choose Language:</label>
+            <select id="language" onchange="updateLanguage()">
+                <option value="en">English</option>
+                <option value="de">Deutsch</option>
+                <option value="fr">Français</option>
+            </select>
+        </div>
     </div>
 
     <script>
-        let isLogin = true;
-        const adminCredentials = {
-            username: "AdminNarrator",
-            password: "SuperSecurePassword123"
-        };
-
-        function toggleForm() {
-            const formTitle = document.getElementById('formTitle');
-            const loginLabel = document.getElementById('loginLabel');
-            const registerFields = document.getElementById('registerFields');
-            const toggleLink = document.getElementById('toggleLink');
-            const submitButton = document.getElementById('submitButton');
-
-            if (isLogin) {
-                formTitle.textContent = 'Register';
-                loginLabel.style.display = 'none';
-                registerFields.style.display = 'block';
-                toggleLink.textContent = 'Already have an account? Login';
-                submitButton.textContent = 'Register';
-                isLogin = false;
-            } else {
-                formTitle.textContent = 'Login';
-                loginLabel.style.display = 'block';
-                registerFields.style.display = 'none';
-                toggleLink.textContent = "Don't have an account? Register";
-                submitButton.textContent = 'Login';
-                isLogin = true;
-            }
-        }
-
-        function handleSubmit(event) {
-            event.preventDefault();
-
-            const usernameOrEmail = document.getElementById('usernameOrEmail').value;
-            const password = document.getElementById('password').value;
-
-            if (isLogin) {
-                // Login logic
-                if (usernameOrEmail === adminCredentials.username && password === adminCredentials.password) {
-                    alert('Logged in as Admin!');
-                    window.location.href = "admin.html";
-                } else {
-                    const storedPassword = localStorage.getItem(`${usernameOrEmail}_password`);
-                    if (storedPassword && storedPassword === password) {
-                        alert('Logged in successfully!');
-                        window.location.href = "main.html";
-                    } else {
-                        document.getElementById('error').textContent = 'Invalid login credentials.';
+        // Initialize i18next
+        i18next.init({
+            lng: localStorage.getItem('preferredLanguage') || 'en', // Load preferred language from localStorage
+            resources: {
+                en: {
+                    translation: {
+                        loginTitle: "Login",
+                        usernameLabel: "Username:",
+                        passwordLabel: "Password:",
+                        submitButton: "Login"
+                    }
+                },
+                de: {
+                    translation: {
+                        loginTitle: "Anmelden",
+                        usernameLabel: "Benutzername:",
+                        passwordLabel: "Passwort:",
+                        submitButton: "Anmelden"
+                    }
+                },
+                fr: {
+                    translation: {
+                        loginTitle: "Connexion",
+                        usernameLabel: "Nom d'utilisateur:",
+                        passwordLabel: "Mot de passe:",
+                        submitButton: "Connexion"
                     }
                 }
-            } else {
-                // Registration logic
-                const username = document.getElementById('registerUsername').value;
-                const email = document.getElementById('registerEmail').value;
-                if (username && email && password) {
-                    localStorage.setItem(`${email}_username`, username);
-                    localStorage.setItem(`${email}_password`, password);
-                    alert('Registration successful! You can now log in.');
-                    toggleForm();
-                } else {
-                    document.getElementById('error').textContent = 'All fields are required for registration.';
-                }
             }
+        }, function(err, t) {
+            // Initial translations
+            updateLanguage();
+        });
+
+        // Function to update language based on selected option
+        function updateLanguage() {
+            const selectedLanguage = document.getElementById('language').value;
+            i18next.changeLanguage(selectedLanguage, function(err, t) {
+                // Update form labels and button text
+                document.getElementById('loginTitle').textContent = i18next.t('loginTitle');
+                document.getElementById('usernameLabel').textContent = i18next.t('usernameLabel');
+                document.getElementById('passwordLabel').textContent = i18next.t('passwordLabel');
+                document.getElementById('submitButton').textContent = i18next.t('submitButton');
+            });
+
+            // Save language preference to localStorage
+            localStorage.setItem('preferredLanguage', selectedLanguage);
         }
+
+        // Handle login submission
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Add your login logic here
+            alert(`Username: ${username}\nPassword: ${password}`);
+        }
+
+        // Set initial language when the page loads
+        window.onload = () => {
+            const preferredLanguage = localStorage.getItem('preferredLanguage') || 'en';
+            document.getElementById('language').value = preferredLanguage;
+            updateLanguage();
+        };
     </script>
 </body>
 </html>
-
