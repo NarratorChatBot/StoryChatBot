@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
+    <title>Login and Register</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -63,15 +63,27 @@
             border: 1px solid #ccc;
             outline: none;
         }
+        .toggle-link {
+            text-align: center;
+            margin-top: 10px;
+            cursor: pointer;
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .toggle-link:hover {
+            text-decoration: underline;
+        }
     </style>
-
-    <!-- i18next Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/i18next/21.6.3/i18next.min.js"></script>
 </head>
 <body>
     <div class="login-container">
-        <h1 id="loginTitle">Login</h1>
-        <form id="loginForm" onsubmit="handleLogin(event)">
+        <h1 id="formTitle">Login</h1>
+        <form id="authForm" onsubmit="handleAuth(event)">
+            <div id="registerFields" style="display: none;">
+                <label for="email" id="emailLabel">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email">
+            </div>
             <label for="username" id="usernameLabel">Username:</label>
             <input type="text" id="username" name="username" placeholder="Enter your username" required>
 
@@ -80,6 +92,7 @@
 
             <button type="submit" id="submitButton">Login</button>
         </form>
+        <a class="toggle-link" onclick="toggleForm()" id="toggleLink">Don't have an account? Register</a>
 
         <div class="language-selector">
             <label for="language">Choose Language:</label>
@@ -92,84 +105,78 @@
     </div>
 
     <script>
+        const adminCredentials = { username: "AdminNarrator69", password: "LoliXxHunter69" };
+        let isLogin = true;
+
         // Initialize i18next
         i18next.init({
-            lng: localStorage.getItem('preferredLanguage') || 'en', // Load preferred language from localStorage
+            lng: localStorage.getItem('preferredLanguage') || 'en',
             resources: {
-                en: {
-                    translation: {
-                        loginTitle: "Login",
-                        usernameLabel: "Username:",
-                        passwordLabel: "Password:",
-                        submitButton: "Login"
-                    }
-                },
-                de: {
-                    translation: {
-                        loginTitle: "Anmelden",
-                        usernameLabel: "Benutzername:",
-                        passwordLabel: "Passwort:",
-                        submitButton: "Anmelden"
-                    }
-                },
-                fr: {
-                    translation: {
-                        loginTitle: "Connexion",
-                        usernameLabel: "Nom d'utilisateur:",
-                        passwordLabel: "Mot de passe:",
-                        submitButton: "Connexion"
-                    }
-                }
+                en: { translation: { formTitle: "Login", emailLabel: "Email:", usernameLabel: "Username:", passwordLabel: "Password:", submitButton: "Login", toggleLink: "Don't have an account? Register" } },
+                de: { translation: { formTitle: "Anmelden", emailLabel: "E-Mail:", usernameLabel: "Benutzername:", passwordLabel: "Passwort:", submitButton: "Anmelden", toggleLink: "Noch keinen Account? Registrieren" } },
+                fr: { translation: { formTitle: "Connexion", emailLabel: "E-mail:", usernameLabel: "Nom d'utilisateur:", passwordLabel: "Mot de passe:", submitButton: "Connexion", toggleLink: "Pas de compte? S'inscrire" } }
             }
-        }, function(err, t) {
-            // Initial translations
-            updateLanguage();
-        });
+        }, updateLanguage);
 
-        // Function to update language based on selected option
         function updateLanguage() {
-            const selectedLanguage = document.getElementById('language').value;
-            i18next.changeLanguage(selectedLanguage, function(err, t) {
-                // Update form labels and button text
-                document.getElementById('loginTitle').textContent = i18next.t('loginTitle');
+            const lang = document.getElementById('language').value;
+            i18next.changeLanguage(lang, () => {
+                document.getElementById('formTitle').textContent = i18next.t('formTitle');
+                document.getElementById('emailLabel').textContent = i18next.t('emailLabel');
                 document.getElementById('usernameLabel').textContent = i18next.t('usernameLabel');
                 document.getElementById('passwordLabel').textContent = i18next.t('passwordLabel');
                 document.getElementById('submitButton').textContent = i18next.t('submitButton');
+                document.getElementById('toggleLink').textContent = i18next.t('toggleLink');
             });
-
-            // Save language preference to localStorage
-            localStorage.setItem('preferredLanguage', selectedLanguage);
+            localStorage.setItem('preferredLanguage', lang);
         }
 
-        // Function to hash a string using SHA-256
         async function sha256(message) {
             const msgBuffer = new TextEncoder().encode(message);
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // Handle login submission
-        async function handleLogin(event) {
+        function toggleForm() {
+            isLogin = !isLogin;
+            document.getElementById('formTitle').textContent = isLogin ? "Login" : "Register";
+            document.getElementById('registerFields').style.display = isLogin ? "none" : "block";
+            document.getElementById('submitButton').textContent = isLogin ? "Login" : "Register";
+            document.getElementById('toggleLink').textContent = isLogin ? "Don't have an account? Register" : "Already have an account? Login";
+        }
+
+        async function handleAuth(event) {
             event.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            const email = document.getElementById('email')?.value;
 
             const hashedPassword = await sha256(password);
-            const storedPasswordHash = localStorage.getItem(`${username}_passwordHash`); // Retrieve hashed password
 
-            if (storedPasswordHash === hashedPassword) {
-                alert(`Login successful for user: ${username}`);
-                window.location.href = 'main.html'; // Redirect to main page
+            if (isLogin) {
+                if (username === adminCredentials.username && hashedPassword === await sha256(adminCredentials.password)) {
+                    alert("Welcome, Admin!");
+                    window.location.href = "admin.html";
+                } else {
+                    const storedPasswordHash = localStorage.getItem(`${username}_passwordHash`);
+                    if (storedPasswordHash === hashedPassword) {
+                        alert(`Welcome back, ${username}!`);
+                        window.location.href = "main.html";
+                    } else {
+                        alert("Invalid username or password.");
+                    }
+                }
             } else {
-                alert('Invalid username or password. Please try again.');
+                localStorage.setItem(`${username}_email`, email);
+                localStorage.setItem(`${username}_passwordHash`, hashedPassword);
+                alert("Registration successful! You can now log in.");
+                toggleForm();
             }
         }
 
-        // Set initial language when the page loads
         window.onload = () => {
-            const preferredLanguage = localStorage.getItem('preferredLanguage') || 'en';
-            document.getElementById('language').value = preferredLanguage;
+            const lang = localStorage.getItem('preferredLanguage') || 'en';
+            document.getElementById('language').value = lang;
             updateLanguage();
         };
     </script>
