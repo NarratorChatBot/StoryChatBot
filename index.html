@@ -37,6 +37,17 @@
             font-size: 1.5rem;
             margin-bottom: 30px;
         }
+        .overlay ul {
+            text-align: left;
+            margin: 0 auto 30px;
+            max-width: 600px;
+            padding: 0;
+            list-style: none;
+        }
+        .overlay ul li {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
         .overlay .actions {
             display: flex;
             gap: 20px;
@@ -74,6 +85,13 @@
         <h1 id="welcomeTitle">Welcome</h1>
         <p id="welcomeMessage">Discover the world of bots and customize your experience.</p>
 
+        <ul id="featureList">
+            <li>Create and customize your own bots.</li>
+            <li>Chat with intelligent AI-powered bots.</li>
+            <li>Manage bots as an administrator.</li>
+            <li>Experience personalized interactions based on your preferences.</li>
+        </ul>
+
         <div class="actions">
             <button onclick="goToLogin()" id="loginButton">Login</button>
             <button onclick="goToRegister()" id="registerButton">Register</button>
@@ -98,6 +116,12 @@
                     translation: {
                         welcomeTitle: "Welcome",
                         welcomeMessage: "Discover the world of bots and customize your experience.",
+                        featureList: [
+                            "Create and customize your own bots.",
+                            "Chat with intelligent AI-powered bots.",
+                            "Manage bots as an administrator.",
+                            "Experience personalized interactions based on your preferences."
+                        ],
                         loginButton: "Login",
                         registerButton: "Register"
                     }
@@ -106,6 +130,12 @@
                     translation: {
                         welcomeTitle: "Willkommen",
                         welcomeMessage: "Entdecke die Welt der Bots und passe dein Erlebnis an.",
+                        featureList: [
+                            "Erstelle und passe deine eigenen Bots an.",
+                            "Chatte mit intelligenten KI-gestützten Bots.",
+                            "Verwalte Bots als Administrator.",
+                            "Erlebe personalisierte Interaktionen basierend auf deinen Vorlieben."
+                        ],
                         loginButton: "Anmelden",
                         registerButton: "Registrieren"
                     }
@@ -114,6 +144,12 @@
                     translation: {
                         welcomeTitle: "Bienvenue",
                         welcomeMessage: "Découvrez le monde des bots et personnalisez votre expérience.",
+                        featureList: [
+                            "Créez et personnalisez vos propres bots.",
+                            "Discutez avec des bots intelligents alimentés par l'IA.",
+                            "Gérez des bots en tant qu'administrateur.",
+                            "Profitez d'interactions personnalisées basées sur vos préférences."
+                        ],
                         loginButton: "Connexion",
                         registerButton: "S'inscrire"
                     }
@@ -130,6 +166,15 @@
             i18next.changeLanguage(selectedLanguage, function(err, t) {
                 document.getElementById('welcomeTitle').textContent = i18next.t('welcomeTitle');
                 document.getElementById('welcomeMessage').textContent = i18next.t('welcomeMessage');
+
+                const featureList = document.getElementById('featureList');
+                featureList.innerHTML = '';
+                i18next.t('featureList', { returnObjects: true }).forEach(feature => {
+                    const li = document.createElement('li');
+                    li.textContent = feature;
+                    featureList.appendChild(li);
+                });
+
                 document.getElementById('loginButton').textContent = i18next.t('loginButton');
                 document.getElementById('registerButton').textContent = i18next.t('registerButton');
             });
