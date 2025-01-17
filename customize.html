@@ -8,23 +8,35 @@
     body { font-family: Arial, sans-serif; padding: 20px; }
     .persona-container { margin-bottom: 20px; }
     textarea { width: 100%; height: 80px; margin-top: 5px; }
-    .error { border: 2px solid red; }
+    button { margin-top: 10px; padding: 10px 20px; }
     .success-message { color: green; margin-top: 10px; }
     .error-message { color: red; margin-top: 10px; }
-    button { margin-top: 10px; padding: 10px 20px; }
   </style>
 </head>
 <body>
 
-<h1>Bearbeite die Bot-Antworten und Backstories</h1>
+<h1>Bearbeite oder erstelle eigene Bots</h1>
 
 <div id="edit-container">
   <!-- Bearbeitungsfelder werden hier dynamisch hinzugefügt -->
 </div>
 
+<h2>Eigenen Bot erstellen</h2>
+<form id="createBotForm">
+  <label for="botName">Bot-Name:</label>
+  <input type="text" id="botName" placeholder="Gib den Namen deines Bots ein" required>
+
+  <label for="botBackstory">Backstory:</label>
+  <textarea id="botBackstory" placeholder="Beschreibe die Hintergrundgeschichte deines Bots"></textarea>
+
+  <label for="botResponses">Antworten (JSON-Format):</label>
+  <textarea id="botResponses" placeholder="Gib benutzerdefinierte Antworten ein"></textarea>
+
+  <button type="submit">Bot erstellen</button>
+</form>
+
 <div id="message"></div>
 
-<button id="save">Änderungen speichern</button>
 <button><a href="main.html">Zurück zur Hauptseite</a></button>
 
 <script>
@@ -36,6 +48,8 @@ const personas = {
   sukuna: { botName: "Sukuna", backstory: "", customResponses: {} },
   pessimistServant: { botName: "Pessimistischer Diener", backstory: "", customResponses: {} },
 };
+
+const currentUser = localStorage.getItem("currentUser") || "unknown"; // Aktuell angemeldeter Benutzer
 
 // Lade gespeicherte Daten aus dem localStorage
 function loadSavedData() {
@@ -62,7 +76,6 @@ function generateEditFields() {
       <textarea id="backstory-${key}">${persona.backstory}</textarea>
       <label>Antworten (JSON-Format):</label>
       <textarea id="responses-${key}">${JSON.stringify(persona.customResponses, null, 2)}</textarea>
-      <div class="error-message" id="error-${key}"></div>
     `;
     container.appendChild(personaDiv);
   }
@@ -76,14 +89,7 @@ function saveChanges() {
   for (const key in personas) {
     const backstoryField = document.getElementById(`backstory-${key}`);
     const responsesField = document.getElementById(`responses-${key}`);
-    const errorField = document.getElementById(`error-${key}`);
 
-    // Reset error state
-    backstoryField.classList.remove("error");
-    responsesField.classList.remove("error");
-    errorField.textContent = "";
-
-    // Validate JSON
     try {
       const customResponses = JSON.parse(responsesField.value || "{}");
       savedData[key] = {
@@ -92,29 +98,53 @@ function saveChanges() {
         customResponses: customResponses,
       };
     } catch (e) {
-      responsesField.classList.add("error");
-      errorField.textContent = "Ungültiges JSON-Format. Bitte korrigieren.";
       hasError = true;
+      alert(`Fehler beim Speichern der Antworten für ${personas[key].botName}: Ungültiges JSON.`);
     }
   }
 
   if (!hasError) {
     localStorage.setItem('customResponses', JSON.stringify(savedData));
-    showMessage("Änderungen wurden erfolgreich gespeichert!", "success");
-  } else {
-    showMessage("Einige Eingaben sind fehlerhaft. Bitte überprüfen Sie das JSON-Format.", "error");
+    alert("Änderungen wurden erfolgreich gespeichert!");
   }
 }
 
-// Zeige Feedback-Nachricht
-function showMessage(message, type) {
-  const messageDiv = document.getElementById("message");
-  messageDiv.textContent = message;
-  messageDiv.className = type === "success" ? "success-message" : "error-message";
-}
+// Event-Listener für das Erstellen eines neuen Bots
+const createBotForm = document.getElementById("createBotForm");
+createBotForm.addEventListener("submit", (event) => {
+  event.preventDefault();
 
-// Event-Listener für das Speichern
-document.getElementById("save").addEventListener("click", saveChanges);
+  const botName = document.getElementById("botName").value.trim();
+  const botBackstory = document.getElementById("botBackstory").value.trim();
+  const botResponses = document.getElementById("botResponses").value.trim();
+
+  if (!botName || !botBackstory || !botResponses) {
+    document.getElementById("message").textContent = "Alle Felder müssen ausgefüllt werden.";
+    document.getElementById("message").className = "error-message";
+    return;
+  }
+
+  try {
+    const parsedResponses = JSON.parse(botResponses);
+    const customBots = JSON.parse(localStorage.getItem("customBots")) || {};
+
+    customBots[botName] = {
+      botName,
+      backstory: botBackstory,
+      customResponses: parsedResponses,
+      createdBy: currentUser,
+    };
+
+    localStorage.setItem("customBots", JSON.stringify(customBots));
+    document.getElementById("message").textContent = "Bot wurde erfolgreich erstellt!";
+    document.getElementById("message").className = "success-message";
+
+    createBotForm.reset();
+  } catch (e) {
+    document.getElementById("message").textContent = "Antworten müssen im gültigen JSON-Format sein.";
+    document.getElementById("message").className = "error-message";
+  }
+});
 
 // Initialisierung
 loadSavedData();
