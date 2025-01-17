@@ -7,8 +7,9 @@
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
     .message { margin: 10px; padding: 10px; border: 1px solid #141010; border-radius: 5px; }
-    .user { background-color: rgb(12, 22, 26); }
-    .bot { background-color: lightgreen; }
+    .user { background-color: rgb(12, 22, 26); color: white; }
+    .bot { background-color: lightgreen; cursor: pointer; }
+    .hidden { display: none; }
     #persona-selector { margin-top: 20px; }
     label { display: block; margin-bottom: 5px; }
     input[type="text"] { width: 100%; padding: 10px; margin-bottom: 10px; }
@@ -29,6 +30,7 @@
     <option value="pessimistServant">Pessimistischer Diener</option>
   </select>
   <button id="changePersona">Persona wechseln</button>
+  <button id="showBackstory">Hintergrundgeschichte anzeigen</button>
 </div>
 
 <button><a href="customize.html">Bot-Antworten und Backstories bearbeiten</a></button>
@@ -43,31 +45,31 @@ const personas = {
     botName: "Satoru Gojo",
     defaultResponse: "Ich bin mir nicht sicher, wie ich darauf antworten soll, aber ich bin der Stärkste!",
     customResponses: {},
-    backstory: ""
+    backstory: "Satoru Gojo ist der stärkste Jujutsu-Zauberer und bekannt für seine Selbstsicherheit."
   },
   diablo: {
     botName: "Diablo",
     defaultResponse: "Was willst du? Es gibt nichts, was ich für dich tun möchte.",
     customResponses: {},
-    backstory: ""
+    backstory: "Diablo ist ein mächtiger Dämon mit absoluter Loyalität gegenüber seinem Meister."
   },
   ainzOoalGown: {
     botName: "Ainz Ooal Gown",
     defaultResponse: "Es scheint, als ob du etwas von mir möchtest. Was ist dein Anliegen?",
     customResponses: {},
-    backstory: ""
+    backstory: "Ainz ist der Anführer der Gilde 'Ainz Ooal Gown' und ein untoter Zauberer mit gewaltiger Macht."
   },
   sukuna: {
     botName: "Sukuna",
     defaultResponse: "Was willst du, Mensch? Hast du wirklich den Mut, mit mir zu sprechen?",
     customResponses: {},
-    backstory: ""
+    backstory: "Sukuna ist ein Fluch von unübertroffener Macht und Arroganz."
   },
   pessimistServant: {
     botName: "Pessimistischer Diener",
     defaultResponse: "Es gibt eigentlich nichts Positives zu sagen, aber was auch immer.",
     customResponses: {},
-    backstory: ""
+    backstory: "Ein Diener, der alles mit einem Hauch von Pessimismus betrachtet."
   }
 };
 
@@ -75,21 +77,34 @@ const personas = {
 let currentPersona = personas.satoruGojo;
 
 // Nachrichten dem Chat hinzufügen
-function addMessage(text, sender) {
+function addMessage(text, sender, isCollapsible = false) {
   const messageDiv = document.createElement("div");
   messageDiv.classList.add("message", sender);
-  messageDiv.textContent = text;
+  
+  if (isCollapsible) {
+    const preview = document.createElement("div");
+    preview.textContent = text.substring(0, 30) + (text.length > 30 ? "..." : "");
+    const fullText = document.createElement("div");
+    fullText.textContent = text;
+    fullText.classList.add("hidden");
+    
+    messageDiv.appendChild(preview);
+    messageDiv.appendChild(fullText);
+    
+    messageDiv.addEventListener("click", () => {
+      fullText.classList.toggle("hidden");
+    });
+  } else {
+    messageDiv.textContent = text;
+  }
+
   document.getElementById("messages").appendChild(messageDiv);
   document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
 }
 
 // Bot-Antwort generieren
 function getBotResponse(userMessage) {
-  const response = currentPersona.customResponses[userMessage];
-  const backstoryText = currentPersona.backstory 
-    ? `\n(Hintergrund: ${currentPersona.backstory})`
-    : "";
-  return (response || currentPersona.defaultResponse) + backstoryText;
+  return currentPersona.customResponses[userMessage] || currentPersona.defaultResponse;
 }
 
 // Lade benutzerdefinierte Antworten und Backstories aus dem localStorage
@@ -105,7 +120,7 @@ function loadCustomResponses() {
   }
 }
 
-// Alle Nachrichten der alten Persona löschen
+// Alte Nachrichten entfernen
 function clearMessages() {
   document.getElementById("messages").innerHTML = "";
 }
@@ -116,7 +131,7 @@ document.getElementById("send").addEventListener("click", () => {
   if (userMessage) {
     addMessage(userMessage, "user"); // Nachricht des Nutzers
     const botResponse = getBotResponse(userMessage); // Bot-Antwort generieren
-    addMessage(`${currentPersona.botName}: ${botResponse}`, "bot");
+    addMessage(`${currentPersona.botName}: ${botResponse}`, "bot", true);
     document.getElementById("input").value = ""; // Eingabefeld leeren
   }
 });
@@ -129,6 +144,11 @@ document.getElementById("changePersona").addEventListener("click", () => {
   addMessage(`${currentPersona.botName}: Hallo, ich bin jetzt ${currentPersona.botName}. Was möchtest du tun?`, "bot");
 });
 
+// Event-Listener für Hintergrundgeschichte
+document.getElementById("showBackstory").addEventListener("click", () => {
+  alert(`${currentPersona.botName} Hintergrund: ${currentPersona.backstory}`);
+});
+
 // Initialisierung
 loadCustomResponses();
 addMessage(`${currentPersona.botName}: Willkommen in meiner Welt! Was möchtest du tun?`, "bot");
@@ -136,4 +156,3 @@ addMessage(`${currentPersona.botName}: Willkommen in meiner Welt! Was möchtest 
 
 </body>
 </html>
-
