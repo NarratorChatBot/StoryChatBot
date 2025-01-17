@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Bots - Cover Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            text-align: center;
+            background-size: cover;
+            background-position: center;
+            background-image: url('https://via.placeholder.com/1920x1080?text=Chat+with+Bots'); /* AI-generated image placeholder */
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        select {
+            padding: 10px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Chat with Bots</h1>
+        <p>On this site, you can:</p>
+        <ul>
+            <li>Chat with AI-powered bots.</li>
+            <li>Create and customize your own bot.</li>
+            <li>Manage and edit bots as an admin.</li>
+        </ul>
+
+        <label for="language">Change Language:</label>
+        <select id="language" onchange="changeLanguage()">
+            <option value="en">English</option>
+            <option value="de">Deutsch</option>
+            <option value="fr">Français</option>
+        </select>
+
+        <button onclick="goToLogin()">Go to Login</button>
+    </div>
+
+    <script>
+        function changeLanguage() {
+            const language = document.getElementById('language').value;
+            alert(`Language changed to: ${language}`);
+        }
+
+        function goToLogin() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
