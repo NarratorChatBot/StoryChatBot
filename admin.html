@@ -78,6 +78,17 @@
     </style>
 </head>
 <body>
+    <script>
+        // Überprüfung, ob der Benutzer Admin-Rechte hat
+        const currentUser = localStorage.getItem('currentUser');
+        const isAdmin = localStorage.getItem('isAdmin'); // Wird beim Login gesetzt
+
+        if (!currentUser || isAdmin !== 'true') {
+            alert('Unberechtigter Zugriff! Sie werden zur Login-Seite weitergeleitet.');
+            window.location.href = 'index.html'; // Leite zur Login-Seite um
+        }
+    </script>
+
     <div class="container" id="authContainer">
         <h1 id="formTitle">Admin Tool Login</h1>
         <form id="loginForm" onsubmit="handleAuth(event)">
@@ -112,8 +123,8 @@
 
     <script>
         const adminCredentials = {
-            username: "AdminNarrator",
-            password: sha256("SuperSecurePassword123")
+            username: "AdminNarrator69",
+            password: "LoliXxHunter69"
         };
 
         let loginAttempts = 0;
@@ -132,6 +143,8 @@
 
             sha256(password).then(hashedPassword => {
                 if (username === adminCredentials.username && hashedPassword === adminCredentials.password) {
+                    localStorage.setItem('currentUser', adminCredentials.username);
+                    localStorage.setItem('isAdmin', 'true'); // Setze Admin-Status
                     showDashboard();
                 } else {
                     loginAttempts++;
