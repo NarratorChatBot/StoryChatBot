@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - My Story Chatbot</title>
+    <title>Admin Tool - Login/Register</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -21,17 +21,17 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             width: 300px;
         }
-        .login-container h1 {
+        h1 {
             font-size: 24px;
             margin-bottom: 20px;
             text-align: center;
         }
-        .login-container label {
+        label {
             font-size: 14px;
             margin-bottom: 5px;
             display: block;
         }
-        .login-container input {
+        input {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
@@ -39,7 +39,7 @@
             border-radius: 5px;
             font-size: 14px;
         }
-        .login-container button {
+        button {
             width: 100%;
             padding: 10px;
             background-color: #4CAF50;
@@ -49,8 +49,13 @@
             font-size: 16px;
             cursor: pointer;
         }
-        .login-container button:hover {
+        button:hover {
             background-color: #45a049;
+        }
+        .error {
+            color: red;
+            font-size: 12px;
+            text-align: center;
         }
         .toggle-link {
             display: block;
@@ -63,46 +68,39 @@
         .toggle-link:hover {
             text-decoration: underline;
         }
-        .forgot-password {
-            text-align: center;
-            margin-top: 10px;
-        }
-        .forgot-password a {
-            color: #007BFF;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .forgot-password a:hover {
-            text-decoration: underline;
-        }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <h1 id="formTitle">Willkommen!</h1>
-        <form id="loginForm" onsubmit="handleLogin(event)">
+        <h1 id="formTitle">Login</h1>
+        <form id="loginForm" onsubmit="handleSubmit(event)">
             <div id="registerFields" style="display: none;">
-                <label for="registerUsername">Benutzername:</label>
-                <input type="text" id="registerUsername" name="registerUsername" placeholder="Gib deinen Benutzernamen ein" required>
-                <label for="registerEmail">E-Mail:</label>
-                <input type="email" id="registerEmail" name="registerEmail" placeholder="Gib deine E-Mail ein" required>
+                <label for="registerUsername">Username:</label>
+                <input type="text" id="registerUsername" placeholder="Enter your username">
+
+                <label for="registerEmail">Email:</label>
+                <input type="email" id="registerEmail" placeholder="Enter your email">
             </div>
-            <label for="usernameOrEmail" id="loginLabel">Benutzername oder E-Mail:</label>
-            <input type="text" id="usernameOrEmail" name="usernameOrEmail" placeholder="Gib deinen Namen oder E-Mail ein" required>
-            <label for="password">Passwort:</label>
-            <input type="password" id="password" name="password" placeholder="Gib dein Passwort ein" required>
-            <button type="submit" id="submitButton">Anmelden</button>
+
+            <label for="usernameOrEmail" id="loginLabel">Username or Email:</label>
+            <input type="text" id="usernameOrEmail" placeholder="Enter your username or email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter your password" required>
+
+            <div class="error" id="error"></div>
+
+            <button type="submit" id="submitButton">Login</button>
         </form>
-        <div class="forgot-password">
-            <a onclick="forgotPassword()">Passwort vergessen?</a>
-        </div>
-        <a class="toggle-link" onclick="toggleForm()" id="toggleLink">Noch keinen Account? Registrieren</a>
+        <a class="toggle-link" onclick="toggleForm()" id="toggleLink">Don't have an account? Register</a>
     </div>
 
     <script>
-        let isLogin = true; // Status ob Login oder Registrierung
-        const adminUsername = "AdminNarrator69"; // Admin username
-        const adminPassword = "LoliXxHunter69"; // Admin password (replace with your actual password)
+        let isLogin = true;
+        const adminCredentials = {
+            username: "AdminNarrator",
+            password: "SuperSecurePassword123"
+        };
 
         function toggleForm() {
             const formTitle = document.getElementById('formTitle');
@@ -112,77 +110,57 @@
             const submitButton = document.getElementById('submitButton');
 
             if (isLogin) {
-                formTitle.textContent = 'Registrieren';
+                formTitle.textContent = 'Register';
                 loginLabel.style.display = 'none';
                 registerFields.style.display = 'block';
-                toggleLink.textContent = 'Bereits einen Account? Anmelden';
-                submitButton.textContent = 'Registrieren';
+                toggleLink.textContent = 'Already have an account? Login';
+                submitButton.textContent = 'Register';
                 isLogin = false;
             } else {
-                formTitle.textContent = 'Willkommen!';
+                formTitle.textContent = 'Login';
                 loginLabel.style.display = 'block';
                 registerFields.style.display = 'none';
-                toggleLink.textContent = 'Noch keinen Account? Registrieren';
-                submitButton.textContent = 'Anmelden';
+                toggleLink.textContent = "Don't have an account? Register";
+                submitButton.textContent = 'Login';
                 isLogin = true;
             }
         }
 
-        function handleLogin(event) {
-            event.preventDefault(); // Verhindert das Standardformularverhalten
+        function handleSubmit(event) {
+            event.preventDefault();
 
             const usernameOrEmail = document.getElementById('usernameOrEmail').value;
             const password = document.getElementById('password').value;
 
             if (isLogin) {
-                if (usernameOrEmail === adminUsername && password === adminPassword) {
-                    alert('Erfolgreich als Admin angemeldet!');
+                // Login logic
+                if (usernameOrEmail === adminCredentials.username && password === adminCredentials.password) {
+                    alert('Logged in as Admin!');
                     window.location.href = "admin.html";
                 } else {
                     const storedPassword = localStorage.getItem(`${usernameOrEmail}_password`);
                     if (storedPassword && storedPassword === password) {
-                        const role = localStorage.getItem(`${usernameOrEmail}_role`);
-                        alert('Erfolgreich angemeldet!');
-                        if (role === 'user') {
-                            window.location.href = "main.html";
-                        } else {
-                            alert('Unauthorized access to admin page!');
-                        }
+                        alert('Logged in successfully!');
+                        window.location.href = "main.html";
                     } else {
-                        alert('Ungültige Anmeldedaten!');
+                        document.getElementById('error').textContent = 'Invalid login credentials.';
                     }
                 }
             } else {
+                // Registration logic
                 const username = document.getElementById('registerUsername').value;
                 const email = document.getElementById('registerEmail').value;
-                localStorage.setItem(`${email}_username`, username);
-                localStorage.setItem(`${email}_password`, password);
-                localStorage.setItem(`${email}_role`, 'user');
-                alert('Registrierung erfolgreich! Sie können sich jetzt anmelden.');
-                toggleForm();
-            }
-        }
-
-        function forgotPassword() {
-            const email = prompt("Bitte geben Sie Ihre E-Mail-Adresse ein:");
-            if (email) {
-                fetch('/forgot-password', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email })
-                })
-                .then(response => response.text())
-                .then(data => {
-                    alert(data);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Fehler beim Senden der E-Mail');
-                });
+                if (username && email && password) {
+                    localStorage.setItem(`${email}_username`, username);
+                    localStorage.setItem(`${email}_password`, password);
+                    alert('Registration successful! You can now log in.');
+                    toggleForm();
+                } else {
+                    document.getElementById('error').textContent = 'All fields are required for registration.';
+                }
             }
         }
     </script>
 </body>
 </html>
+
