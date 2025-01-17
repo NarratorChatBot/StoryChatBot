@@ -35,6 +35,9 @@
             outline: none;
         }
     </style>
+
+    <!-- i18next Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/i18next/21.6.3/i18next.min.js"></script>
 </head>
 <body>
     <header>
@@ -56,40 +59,52 @@
     </div>
 
     <script>
-        const translations = {
-            en: {
-                pageTitle: "Welcome to the Main Page",
-                nationalityMessage: "Your nationality and language settings will be applied here.",
-                welcomeMessage: "This is your personalized main page based on your settings."
-            },
-            de: {
-                pageTitle: "Willkommen auf der Hauptseite",
-                nationalityMessage: "Ihre Nationalitäts- und Spracheinstellungen werden hier angewendet.",
-                welcomeMessage: "Dies ist Ihre personalisierte Hauptseite basierend auf Ihren Einstellungen."
-            },
-            fr: {
-                pageTitle: "Bienvenue sur la page principale",
-                nationalityMessage: "Vos paramètres de nationalité et de langue seront appliqués ici.",
-                welcomeMessage: "Ceci est votre page principale personnalisée en fonction de vos paramètres."
+        // Initialize i18next
+        i18next.init({
+            lng: localStorage.getItem('preferredLanguage') || 'en', // Load preferred language from localStorage
+            resources: {
+                en: {
+                    translation: {
+                        pageTitle: "Welcome to the Main Page",
+                        nationalityMessage: "Your nationality and language settings will be applied here.",
+                        welcomeMessage: "This is your personalized main page based on your settings."
+                    }
+                },
+                de: {
+                    translation: {
+                        pageTitle: "Willkommen auf der Hauptseite",
+                        nationalityMessage: "Ihre Nationalitäts- und Spracheinstellungen werden hier angewendet.",
+                        welcomeMessage: "Dies ist Ihre personalisierte Hauptseite basierend auf Ihren Einstellungen."
+                    }
+                },
+                fr: {
+                    translation: {
+                        pageTitle: "Bienvenue sur la page principale",
+                        nationalityMessage: "Vos paramètres de nationalité et de langue seront appliqués ici.",
+                        welcomeMessage: "Ceci est votre page principale personnalisée en fonction de vos paramètres."
+                    }
+                }
             }
-        };
+        }, function(err, t) {
+            // Initial translations
+            updateLanguage();
+        });
 
+        // Function to update language based on selected option
         function updateLanguage() {
             const selectedLanguage = document.getElementById('language').value;
-            const pageTitle = document.getElementById('pageTitle');
-            const nationalityMessage = document.getElementById('nationalityMessage');
-            const welcomeMessage = document.getElementById('welcomeMessage');
+            i18next.changeLanguage(selectedLanguage, function(err, t) {
+                // Update page content with new language
+                document.getElementById('pageTitle').textContent = i18next.t('pageTitle');
+                document.getElementById('nationalityMessage').textContent = i18next.t('nationalityMessage');
+                document.getElementById('welcomeMessage').textContent = i18next.t('welcomeMessage');
+            });
 
-            const translation = translations[selectedLanguage];
-            pageTitle.textContent = translation.pageTitle;
-            nationalityMessage.textContent = translation.nationalityMessage;
-            welcomeMessage.textContent = translation.welcomeMessage;
-
-            // Save the language selection in localStorage
+            // Save language preference to localStorage
             localStorage.setItem('preferredLanguage', selectedLanguage);
         }
 
-        // Load the language preference from localStorage
+        // Set initial language when the page loads
         window.onload = () => {
             const preferredLanguage = localStorage.getItem('preferredLanguage') || 'en';
             document.getElementById('language').value = preferredLanguage;
