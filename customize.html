@@ -8,6 +8,9 @@
     body { font-family: Arial, sans-serif; padding: 20px; }
     .persona-container { margin-bottom: 20px; }
     textarea { width: 100%; height: 80px; margin-top: 5px; }
+    .error { border: 2px solid red; }
+    .success-message { color: green; margin-top: 10px; }
+    .error-message { color: red; margin-top: 10px; }
     button { margin-top: 10px; padding: 10px 20px; }
   </style>
 </head>
@@ -18,6 +21,8 @@
 <div id="edit-container">
   <!-- Bearbeitungsfelder werden hier dynamisch hinzugefügt -->
 </div>
+
+<div id="message"></div>
 
 <button id="save">Änderungen speichern</button>
 <button><a href="main.html">Zurück zur Hauptseite</a></button>
@@ -57,6 +62,7 @@ function generateEditFields() {
       <textarea id="backstory-${key}">${persona.backstory}</textarea>
       <label>Antworten (JSON-Format):</label>
       <textarea id="responses-${key}">${JSON.stringify(persona.customResponses, null, 2)}</textarea>
+      <div class="error-message" id="error-${key}"></div>
     `;
     container.appendChild(personaDiv);
   }
@@ -65,17 +71,46 @@ function generateEditFields() {
 // Speichere die Änderungen
 function saveChanges() {
   const savedData = {};
+  let hasError = false;
+
   for (const key in personas) {
     const backstoryField = document.getElementById(`backstory-${key}`);
     const responsesField = document.getElementById(`responses-${key}`);
-    savedData[key] = {
-      botName: personas[key].botName,
-      backstory: backstoryField.value,
-      customResponses: JSON.parse(responsesField.value || "{}"),
-    };
+    const errorField = document.getElementById(`error-${key}`);
+
+    // Reset error state
+    backstoryField.classList.remove("error");
+    responsesField.classList.remove("error");
+    errorField.textContent = "";
+
+    // Validate JSON
+    try {
+      const customResponses = JSON.parse(responsesField.value || "{}");
+      savedData[key] = {
+        botName: personas[key].botName,
+        backstory: backstoryField.value || personas[key].backstory,
+        customResponses: customResponses,
+      };
+    } catch (e) {
+      responsesField.classList.add("error");
+      errorField.textContent = "Ungültiges JSON-Format. Bitte korrigieren.";
+      hasError = true;
+    }
   }
-  localStorage.setItem('customResponses', JSON.stringify(savedData));
-  alert("Änderungen wurden gespeichert!");
+
+  if (!hasError) {
+    localStorage.setItem('customResponses', JSON.stringify(savedData));
+    showMessage("Änderungen wurden erfolgreich gespeichert!", "success");
+  } else {
+    showMessage("Einige Eingaben sind fehlerhaft. Bitte überprüfen Sie das JSON-Format.", "error");
+  }
+}
+
+// Zeige Feedback-Nachricht
+function showMessage(message, type) {
+  const messageDiv = document.getElementById("message");
+  messageDiv.textContent = message;
+  messageDiv.className = type === "success" ? "success-message" : "error-message";
 }
 
 // Event-Listener für das Speichern
