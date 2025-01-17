@@ -32,7 +32,7 @@
             margin-bottom: 5px;
             display: block;
         }
-        input {
+        input, select {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
@@ -98,6 +98,22 @@
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" placeholder="Enter your password" required>
 
+            <label for="nationality">Nationality:</label>
+            <select id="nationality" required>
+                <option value="">Select your nationality</option>
+                <option value="de">German</option>
+                <option value="en">English</option>
+                <option value="fr">French</option>
+            </select>
+
+            <label for="language">Preferred Language:</label>
+            <select id="language" required>
+                <option value="">Select your language</option>
+                <option value="de">Deutsch</option>
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+            </select>
+
             <div class="error" id="error"></div>
 
             <button type="submit" id="submitButton">Login</button>
@@ -112,6 +128,8 @@
                     <th>Username</th>
                     <th>Email</th>
                     <th>Role</th>
+                    <th>Nationality</th>
+                    <th>Language</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -140,11 +158,20 @@
 
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            const nationality = document.getElementById('nationality').value;
+            const language = document.getElementById('language').value;
+
+            if (!nationality || !language) {
+                document.getElementById('error').textContent = 'Please select your nationality and language.';
+                return;
+            }
 
             sha256(password).then(hashedPassword => {
                 if (username === adminCredentials.username && hashedPassword === adminCredentials.password) {
                     localStorage.setItem('currentUser', adminCredentials.username);
                     localStorage.setItem('isAdmin', 'true'); // Setze Admin-Status
+                    localStorage.setItem('nationality', nationality);
+                    localStorage.setItem('language', language);
                     showDashboard();
                 } else {
                     loginAttempts++;
@@ -166,8 +193,8 @@
 
         function populateUsers() {
             const users = [
-                { username: "user1", email: "user1@example.com", role: "user" },
-                { username: "user2", email: "user2@example.com", role: "moderator" }
+                { username: "user1", email: "user1@example.com", role: "user", nationality: "German", language: "Deutsch" },
+                { username: "user2", email: "user2@example.com", role: "moderator", nationality: "English", language: "English" }
             ];
             const tableBody = document.getElementById('userTable');
             tableBody.innerHTML = '';
@@ -178,6 +205,8 @@
                     <td>${user.username}</td>
                     <td>${user.email}</td>
                     <td>${user.role}</td>
+                    <td>${user.nationality}</td>
+                    <td>${user.language}</td>
                     <td><button onclick="deleteUser('${user.username}')">Delete</button></td>
                 `;
                 tableBody.appendChild(row);
