@@ -3,35 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - My Story Chatbot</title>
+    <title>Admin Tool - Enhanced</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             height: 100vh;
             margin: 0;
         }
-        .login-container {
+        .container {
             background: #fff;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             width: 300px;
         }
-        .login-container h1 {
+        h1 {
             font-size: 24px;
             margin-bottom: 20px;
             text-align: center;
         }
-        .login-container label {
+        label {
             font-size: 14px;
             margin-bottom: 5px;
             display: block;
         }
-        .login-container input {
+        input {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
@@ -39,7 +40,7 @@
             border-radius: 5px;
             font-size: 14px;
         }
-        .login-container button {
+        button {
             width: 100%;
             padding: 10px;
             background-color: #4CAF50;
@@ -49,103 +50,130 @@
             font-size: 16px;
             cursor: pointer;
         }
-        .login-container button:hover {
+        button:hover {
             background-color: #45a049;
         }
-        .toggle-link {
-            display: block;
+        .error {
+            color: red;
+            font-size: 12px;
             text-align: center;
-            margin-top: 10px;
-            color: #007BFF;
-            text-decoration: none;
-            cursor: pointer;
         }
-        .toggle-link:hover {
-            text-decoration: underline;
+        .dashboard {
+            max-width: 600px;
+            width: 100%;
+            margin: 20px auto;
+        }
+        .dashboard table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .dashboard th, .dashboard td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .dashboard th {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h1 id="formTitle">Willkommen!</h1>
-        <form id="loginForm" onsubmit="handleLogin(event)">
-            <label for="usernameOrEmail">Benutzername oder E-Mail:</label>
-            <input type="text" id="usernameOrEmail" name="usernameOrEmail" placeholder="Gib deinen Namen oder E-Mail ein" required>
+    <div class="container" id="authContainer">
+        <h1 id="formTitle">Admin Tool Login</h1>
+        <form id="loginForm" onsubmit="handleAuth(event)">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
 
-            <label for="password">Passwort:</label>
-            <input type="password" id="password" name="password" placeholder="Gib dein Passwort ein" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
 
-            <button type="submit" id="submitButton">Anmelden</button>
+            <div class="error" id="error"></div>
+
+            <button type="submit" id="submitButton">Login</button>
         </form>
-        <a class="toggle-link" onclick="toggleForm()" id="toggleLink">Noch keinen Account? Registrieren</a>
+    </div>
+
+    <div class="dashboard hidden" id="dashboard">
+        <h1>Admin Dashboard</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="userTable">
+                <!-- User rows will be populated here -->
+            </tbody>
+        </table>
     </div>
 
     <script>
-        let isLogin = true; // Status ob Login oder Registrierung
-        const adminUsername = "NarratorAdmin"; // Admin username
-        const adminPassword = "LoliXxHUnter69"; // Admin password (replace with your actual password)
+        const adminCredentials = {
+            username: "AdminNarrator",
+            password: sha256("SuperSecurePassword123")
+        };
 
-        function toggleForm() {
-            const formTitle = document.getElementById('formTitle');
-            const toggleLink = document.getElementById('toggleLink');
-            const submitButton = document.getElementById('submitButton');
+        let loginAttempts = 0;
 
-            if (isLogin) {
-                // Wechsel zu Registrierung
-                formTitle.textContent = 'Registrieren';
-                toggleLink.textContent = 'Bereits einen Account? Anmelden';
-                submitButton.textContent = 'Registrieren';
-                isLogin = false;
-            } else {
-                // Wechsel zu Login
-                formTitle.textContent = 'Willkommen!';
-                toggleLink.textContent = 'Noch keinen Account? Registrieren';
-                submitButton.textContent = 'Anmelden';
-                isLogin = true;
-            }
+        function sha256(str) {
+            return crypto.subtle.digest("SHA-256", new TextEncoder().encode(str)).then(hashBuffer => {
+                return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, "0")).join("");
+            });
         }
 
-        function handleLogin(event) {
-            event.preventDefault(); // Verhindert das Standardformularverhalten
+        function handleAuth(event) {
+            event.preventDefault();
 
-            const usernameOrEmail = document.getElementById('usernameOrEmail').value;
+            const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            if (isLogin) {
-                // Login-Logik
-                if (usernameOrEmail === adminUsername && password === adminPassword) {
-                    alert('Erfolgreich als Admin angemeldet!');
-                    window.location.href = "admin.html";
+            sha256(password).then(hashedPassword => {
+                if (username === adminCredentials.username && hashedPassword === adminCredentials.password) {
+                    showDashboard();
                 } else {
-                    const storedPasswordByEmail = localStorage.getItem(`${usernameOrEmail}_password`);
-                    const storedPasswordByUsername = localStorage.getItem(`${localStorage.getItem(`${usernameOrEmail}_email`)}_password`);
-                    const storedPassword = storedPasswordByEmail || storedPasswordByUsername;
-
-                    if (storedPassword && storedPassword === password) {
-                        const roleByEmail = localStorage.getItem(`${usernameOrEmail}_role`);
-                        const roleByUsername = localStorage.getItem(`${localStorage.getItem(`${usernameOrEmail}_email`)}_role`);
-                        const role = roleByEmail || roleByUsername;
-                        
-                        alert('Erfolgreich angemeldet!');
-                        if (role === 'user') {
-                            window.location.href = "main.html";
-                        } else {
-                            alert('Unauthorized access to admin page!');
-                        }
+                    loginAttempts++;
+                    if (loginAttempts >= 3) {
+                        document.getElementById('error').textContent = 'Too many failed attempts. Try again later.';
+                        document.getElementById('submitButton').disabled = true;
                     } else {
-                        alert('Ungültige Anmeldedaten!');
+                        document.getElementById('error').textContent = 'Invalid credentials. Please try again.';
                     }
                 }
-            } else {
-                // Registrierung-Logik
-                const email = document.getElementById('usernameOrEmail').value;
-                const username = document.getElementById('usernameOrEmail').value;
-                localStorage.setItem(`${email}_username`, username);
-                localStorage.setItem(`${email}_password`, password);
-                localStorage.setItem(`${email}_role`, 'user');
-                alert('Registrierung erfolgreich! Sie können sich jetzt anmelden.');
-                toggleForm();
-            }
+            });
+        }
+
+        function showDashboard() {
+            document.getElementById('authContainer').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            populateUsers();
+        }
+
+        function populateUsers() {
+            const users = [
+                { username: "user1", email: "user1@example.com", role: "user" },
+                { username: "user2", email: "user2@example.com", role: "moderator" }
+            ];
+            const tableBody = document.getElementById('userTable');
+            tableBody.innerHTML = '';
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${user.role}</td>
+                    <td><button onclick="deleteUser('${user.username}')">Delete</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function deleteUser(username) {
+            alert(`User ${username} deleted.`);
+            // Add deletion logic here
         }
     </script>
 </body>
