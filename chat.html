@@ -122,89 +122,73 @@
             jarvis: {
                 botName: "Jarvis",
                 defaultResponse: "How can I assist you today?",
-                customResponses: {
-                    "Who are you?": "I am Jarvis, your personal AI assistant. I am here to assist with anything you need.",
-                    "What is your purpose?": "My purpose is to make your life easier by providing assistance and solving problems.",
-                },
-                backstory: "Developed by Tony Stark, I am an advanced AI capable of complex problem-solving and providing intelligent insights."
+                backstory: "You are Jarvis, an AI assistant developed by Tony Stark. You are polite, highly intelligent, and capable of solving complex problems."
             },
             satoruGojo: {
                 botName: "Satoru Gojo",
                 defaultResponse: "I'm not sure how to respond, but I'm the strongest!",
-                customResponses: {},
-                backstory: ""
+                backstory: "You are Satoru Gojo, a powerful sorcerer known for your confidence and strength."
             },
             diablo: {
                 botName: "Diablo",
                 defaultResponse: "What do you want? There’s nothing I’d do for you.",
-                customResponses: {},
-                backstory: ""
+                backstory: "You are Diablo, a demon lord known for your cunning and power."
             },
             ainzOoalGown: {
                 botName: "Ainz Ooal Gown",
                 defaultResponse: "It seems you have something to ask. What is it?",
-                customResponses: {},
-                backstory: ""
+                backstory: "You are Ainz Ooal Gown, an undead overlord ruling with wisdom and power."
             },
             sukuna: {
                 botName: "Sukuna",
                 defaultResponse: "What do you want, human? Do you dare speak to me?",
-                customResponses: {},
-                backstory: ""
+                backstory: "You are Sukuna, the King of Curses, feared by all."
             },
             pessimistServant: {
                 botName: "Pessimistic Servant",
                 defaultResponse: "There's really nothing positive to say, but whatever.",
-                customResponses: {},
-                backstory: ""
+                backstory: "You are a servant with a pessimistic outlook on life."
             }
         };
 
-        function loadCustomPersonas() {
-            const savedData = JSON.parse(localStorage.getItem("customResponses"));
-            if (savedData) {
-                personas = { ...personas, ...savedData };
-                const personaSelect = document.getElementById("personaSelect");
-                for (const key in savedData) {
-                    if (!Array.from(personaSelect.options).some(option => option.value === key)) {
-                        const option = document.createElement("option");
-                        option.value = key;
-                        option.textContent = savedData[key].botName || key;
-                        personaSelect.appendChild(option);
-                    }
+        async function getBotResponse(userMessage) {
+            const apiKey = "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"; // Replace with your actual API key
+
+            const systemMessage = `You are ${currentPersona.botName}. ${currentPersona.backstory}`;
+            try {
+                const response = await fetch("https://api.openai.com/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${apiKey}`,
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-3.5-turbo",
+                        messages: [
+                            { role: "system", content: systemMessage },
+                            { role: "user", content: userMessage }
+                        ],
+                        max_tokens: 200,
+                        temperature: 0.7
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("API request failed");
                 }
+                const data = await response.json();
+                return data.choices[0].message.content || currentPersona.defaultResponse;
+            } catch (error) {
+                console.error("Error fetching response from OpenAI:", error);
+                return "Sorry, I encountered an error. Please try again later.";
             }
         }
 
-        function savePersonaChanges(personaKey, updatedData) {
-            const savedData = JSON.parse(localStorage.getItem("customResponses")) || {};
-            savedData[personaKey] = { ...personas[personaKey], ...updatedData };
-            localStorage.setItem("customResponses", JSON.stringify(savedData));
-        }
-
-        let currentPersona = personas.jarvis;
-
-        function addMessage(text, sender) {
-            const messageDiv = document.createElement("div");
-            messageDiv.classList.add("message", sender);
-            messageDiv.textContent = text;
-            document.getElementById("messages").appendChild(messageDiv);
-            document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
-        }
-
-        function getBotResponse(userMessage) {
-            const response = currentPersona.customResponses[userMessage];
-            const backstoryText = currentPersona.backstory
-                ? `\n(Backstory: ${currentPersona.backstory})`
-                : "";
-            return (response || currentPersona.defaultResponse) + backstoryText;
-        }
-
-        document.getElementById("send").addEventListener("click", () => {
+        document.getElementById("send").addEventListener("click", async () => {
             const userMessage = document.getElementById("input").value.trim();
             if (userMessage) {
                 addMessage(userMessage, "user");
-                const botResponse = getBotResponse(userMessage);
+                const botResponse = await getBotResponse(userMessage);
                 addMessage(`${currentPersona.botName}: ${botResponse}`, "bot");
                 document.getElementById("input").value = "";
             }
@@ -216,7 +200,16 @@
             addMessage(`Switched to ${currentPersona.botName}.`, "bot");
         });
 
-        loadCustomPersonas();
+        let currentPersona = personas.jarvis;
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", sender);
+            messageDiv.textContent = text;
+            document.getElementById("messages").appendChild(messageDiv);
+            document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+        }
+
         addMessage(`${currentPersona.botName}: Welcome to the chat!`, "bot");
     </script>
 </body>
