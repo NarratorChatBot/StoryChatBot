@@ -1,1 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Bots</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #1c92d2, #f2fcfe);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        header {
+            background: #1c92d2;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            margin: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        #messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f9f9f9;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        .message.user {
+            background: #1c92d2;
+            color: white;
+            align-self: flex-end;
+        }
+        .message.bot {
+            background: #f2fcfe;
+            border: 1px solid #1c92d2;
+            color: black;
+            align-self: flex-start;
+        }
+        .input-container {
+            display: flex;
+            padding: 10px;
+            background: #1c92d2;
+        }
+        .input-container input {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .input-container button {
+            background: white;
+            color: #1c92d2;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .persona-selector {
+            background: #ffffff;
+            padding: 10px;
+            border-bottom: 1px solid #1c92d2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .persona-selector select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #1c92d2;
+        }
+    </style>
+</head>
+<body>
+    <header>Chat with Bots</header>
+
+    <div class="chat-container">
+        <div class="persona-selector">
+            <h3>Choose Persona:</h3>
+            <select id="personaSelect">
+                <option value="satoruGojo">Satoru Gojo</option>
+                <option value="diablo">Diablo</option>
+                <option value="ainzOoalGown">Ainz Ooal Gown</option>
+                <option value="sukuna">Sukuna</option>
+                <option value="pessimistServant">Pessimistic Servant</option>
+            </select>
+        </div>
+        <div id="messages"></div>
+        <div class="input-container">
+            <input type="text" id="input" placeholder="Type your message...">
+            <button id="send">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const personas = {
+            satoruGojo: {
+                botName: "Satoru Gojo",
+                defaultResponse: "I'm not sure how to respond, but I'm the strongest!",
+                customResponses: {},
+                backstory: ""
+            },
+            diablo: {
+                botName: "Diablo",
+                defaultResponse: "What do you want? There’s nothing I’d do for you.",
+                customResponses: {},
+                backstory: ""
+            },
+            ainzOoalGown: {
+                botName: "Ainz Ooal Gown",
+                defaultResponse: "It seems you have something to ask. What is it?",
+                customResponses: {},
+                backstory: ""
+            },
+            sukuna: {
+                botName: "Sukuna",
+                defaultResponse: "What do you want, human? Do you dare speak to me?",
+                customResponses: {},
+                backstory: ""
+            },
+            pessimistServant: {
+                botName: "Pessimistic Servant",
+                defaultResponse: "There's really nothing positive to say, but whatever.",
+                customResponses: {},
+                backstory: ""
+            }
+        };
+
+        let currentPersona = personas.satoruGojo;
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", sender);
+            messageDiv.textContent = text;
+            document.getElementById("messages").appendChild(messageDiv);
+            document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+        }
+
+        function getBotResponse(userMessage) {
+            const response = currentPersona.customResponses[userMessage];
+            const backstoryText = currentPersona.backstory
+                ? `\n(Backstory: ${currentPersona.backstory})`
+                : "";
+            return (response || currentPersona.defaultResponse) + backstoryText;
+        }
+
+        document.getElementById("send").addEventListener("click", () => {
+            const userMessage = document.getElementById("input").value.trim();
+            if (userMessage) {
+                addMessage(userMessage, "user");
+                const botResponse = getBotResponse(userMessage);
+                addMessage(`${currentPersona.botName}: ${botResponse}`, "bot");
+                document.getElementById("input").value = "";
+            }
+        });
+
+        document.getElementById("personaSelect").addEventListener("change", () => {
+            const selectedPersonaKey = document.getElementById("personaSelect").value;
+            currentPersona = personas[selectedPersonaKey];
+            addMessage(`Switched to ${currentPersona.botName}.`, "bot");
+        });
+
+        addMessage(`${currentPersona.botName}: Welcome to the chat!`, "bot");
+    </script>
+</body>
+</html>
 
