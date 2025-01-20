@@ -176,6 +176,12 @@
             }
         }
 
+        function savePersonaChanges(personaKey, updatedData) {
+            const savedData = JSON.parse(localStorage.getItem("customResponses")) || {};
+            savedData[personaKey] = { ...personas[personaKey], ...updatedData };
+            localStorage.setItem("customResponses", JSON.stringify(savedData));
+        }
+
         let currentPersona = personas.jarvis;
 
         function addMessage(text, sender) {
