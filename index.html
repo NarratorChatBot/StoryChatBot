@@ -88,13 +88,12 @@
         <ul id="featureList">
             <li>Create and customize your own bots.</li>
             <li>Chat with intelligent AI-powered bots.</li>
-            <li>Manage bots as an administrator.</li>
+            <li>Manage bots.</li>
             <li>Experience personalized interactions based on your preferences.</li>
         </ul>
 
         <div class="actions">
-            <button onclick="goToLogin()" id="loginButton">Login</button>
-            <button onclick="goToRegister()" id="registerButton">Register</button>
+            <button onclick="goToMain()" id="redirectButton">Continue</button>
         </div>
 
         <div class="language-selector">
@@ -119,11 +118,10 @@
                         featureList: [
                             "Create and customize your own bots.",
                             "Chat with intelligent AI-powered bots.",
-                            "Manage bots as an administrator.",
+                            "Manage bots .",
                             "Experience personalized interactions based on your preferences."
                         ],
-                        loginButton: "Login",
-                        registerButton: "Register"
+                        redirectButton: "Continue"
                     }
                 },
                 de: {
@@ -133,11 +131,10 @@
                         featureList: [
                             "Erstelle und passe deine eigenen Bots an.",
                             "Chatte mit intelligenten KI-gestützten Bots.",
-                            "Verwalte Bots .",
+                            "Verwalte Bots.",
                             "Erlebe personalisierte Interaktionen basierend auf deinen Vorlieben."
                         ],
-                        loginButton: "Anmelden",
-                        registerButton: "Registrieren"
+                        redirectButton: "Weiter"
                     }
                 },
                 fr: {
@@ -147,11 +144,10 @@
                         featureList: [
                             "Créez et personnalisez vos propres bots.",
                             "Discutez avec des bots intelligents alimentés par l'IA.",
-                            "Gérez des bots en tant qu'administrateur.",
+                            "Gérez des bots en tant .",
                             "Profitez d'interactions personnalisées basées sur vos préférences."
                         ],
-                        loginButton: "Connexion",
-                        registerButton: "S'inscrire"
+                        redirectButton: "Continuer"
                     }
                 }
             }
@@ -175,21 +171,16 @@
                     featureList.appendChild(li);
                 });
 
-                document.getElementById('loginButton').textContent = i18next.t('loginButton');
-                document.getElementById('registerButton').textContent = i18next.t('registerButton');
+                document.getElementById('redirectButton').textContent = i18next.t('redirectButton');
             });
 
             // Save language preference to localStorage
             localStorage.setItem('preferredLanguage', selectedLanguage);
         }
 
-        // Navigation functions
-        function goToLogin() {
+        // Navigation function for the redirect button
+        function goToMain() {
             window.location.href = 'login.html';
-        }
-
-        function goToRegister() {
-            window.location.href = 'register.html';
         }
 
         // Set initial language when the page loads
