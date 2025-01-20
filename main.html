@@ -8,44 +8,66 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
-            background-color: #f4f4f9;
-            color: #333;
+            padding: 0;
+            background: linear-gradient(to bottom right, #2c3e50, #bdc3c7);
+            color: #fff;
         }
         header {
             text-align: center;
-            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
         }
         header h1 {
-            font-size: 2.5rem;
+            font-size: 3rem;
         }
         .content {
             max-width: 800px;
-            margin: 0 auto;
+            margin: 40px auto;
             text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .content h2 {
+            color: #f39c12;
         }
         .language-selector {
             margin: 20px 0;
         }
-        select {
+        select, button {
             padding: 10px;
             font-size: 1rem;
             border-radius: 5px;
-            border: 1px solid #ccc;
-            outline: none;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button {
+            background: #f39c12;
+            color: white;
+        }
+        button:hover {
+            background: #d35400;
+        }
+        a {
+            color: white;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
         }
     </style>
-
-    <!-- i18next Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/i18next/21.6.3/i18next.min.js"></script>
 </head>
 <body>
     <header>
         <h1 id="pageTitle">Welcome to the Main Page</h1>
-        <p id="nationalityMessage">Your nationality and language settings will be applied here.</p>
     </header>
 
     <div class="content">
+        <h2 id="nationalityMessage">Your nationality and language settings will be applied here.</h2>
+        <p id="welcomeMessage">Explore the bots and customize their responses.</p>
+        
         <div class="language-selector">
             <label for="language">Choose Language:</label>
             <select id="language" onchange="updateLanguage()">
@@ -54,60 +76,34 @@
                 <option value="fr">Français</option>
             </select>
         </div>
-
-        <p id="welcomeMessage">This is your personalized main page based on your settings.</p>
+        
+        <button><a href="customize.html">Customize Bot Responses</a></button>
+        <button><a href="chat.html">Interact with the Bots</a></button>
     </div>
 
     <script>
-        // Initialize i18next
         i18next.init({
-            lng: localStorage.getItem('preferredLanguage') || 'en', // Load preferred language from localStorage
+            lng: localStorage.getItem('preferredLanguage') || 'en',
             resources: {
-                en: {
-                    translation: {
-                        pageTitle: "Welcome to the Main Page",
-                        nationalityMessage: "Your nationality and language settings will be applied here.",
-                        welcomeMessage: "This is your personalized main page based on your settings."
-                    }
-                },
-                de: {
-                    translation: {
-                        pageTitle: "Willkommen auf der Hauptseite",
-                        nationalityMessage: "Ihre Nationalitäts- und Spracheinstellungen werden hier angewendet.",
-                        welcomeMessage: "Dies ist Ihre personalisierte Hauptseite basierend auf Ihren Einstellungen."
-                    }
-                },
-                fr: {
-                    translation: {
-                        pageTitle: "Bienvenue sur la page principale",
-                        nationalityMessage: "Vos paramètres de nationalité et de langue seront appliqués ici.",
-                        welcomeMessage: "Ceci est votre page principale personnalisée en fonction de vos paramètres."
-                    }
-                }
+                en: { translation: { pageTitle: "Welcome to the Main Page", nationalityMessage: "Your nationality and language settings will be applied here.", welcomeMessage: "Explore the bots and customize their responses." } },
+                de: { translation: { pageTitle: "Willkommen auf der Hauptseite", nationalityMessage: "Ihre Nationalitäts- und Spracheinstellungen werden hier angewendet.", welcomeMessage: "Erkunden Sie die Bots und passen Sie ihre Antworten an." } },
+                fr: { translation: { pageTitle: "Bienvenue sur la page principale", nationalityMessage: "Vos paramètres de nationalité et de langue seront appliqués ici.", welcomeMessage: "Explorez les bots et personnalisez leurs réponses." } },
             }
-        }, function(err, t) {
-            // Initial translations
-            updateLanguage();
-        });
+        }, updateLanguage);
 
-        // Function to update language based on selected option
         function updateLanguage() {
-            const selectedLanguage = document.getElementById('language').value;
-            i18next.changeLanguage(selectedLanguage, function(err, t) {
-                // Update page content with new language
+            const lang = document.getElementById('language').value;
+            i18next.changeLanguage(lang, () => {
                 document.getElementById('pageTitle').textContent = i18next.t('pageTitle');
                 document.getElementById('nationalityMessage').textContent = i18next.t('nationalityMessage');
                 document.getElementById('welcomeMessage').textContent = i18next.t('welcomeMessage');
             });
-
-            // Save language preference to localStorage
-            localStorage.setItem('preferredLanguage', selectedLanguage);
+            localStorage.setItem('preferredLanguage', lang);
         }
 
-        // Set initial language when the page loads
         window.onload = () => {
-            const preferredLanguage = localStorage.getItem('preferredLanguage') || 'en';
-            document.getElementById('language').value = preferredLanguage;
+            const lang = localStorage.getItem('preferredLanguage') || 'en';
+            document.getElementById('language').value = lang;
             updateLanguage();
         };
     </script>
