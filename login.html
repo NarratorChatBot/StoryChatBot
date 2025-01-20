@@ -106,6 +106,7 @@
 
     <script>
         const adminCredentials = { username: "AdminNarrator69", password: "LoliXxHunter69" };
+        const testAccount = { username: "TestUser", password: "Test1234" };
         let isLogin = true;
 
         // Initialize i18next
@@ -157,6 +158,9 @@
                 if (username === adminCredentials.username && hashedPassword === await sha256(adminCredentials.password)) {
                     alert("Welcome, Admin!");
                     window.location.href = "admin.html";
+                } else if (username === testAccount.username && hashedPassword === await sha256(testAccount.password)) {
+                    alert("Welcome, Test User!");
+                    window.location.href = "main.html";
                 } else {
                     const storedPasswordHash = localStorage.getItem(`${username}_passwordHash`);
                     if (storedPasswordHash === hashedPassword) {
