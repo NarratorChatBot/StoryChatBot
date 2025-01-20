@@ -3,31 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat with Bots</title>
+    <title>Chat with Jarvis</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to right, #1c92d2, #f2fcfe);
+            background: linear-gradient(to bottom right, #0f2027, #203a43, #2c5364);
             display: flex;
             flex-direction: column;
             height: 100vh;
+            color: white;
         }
         header {
-            background: #1c92d2;
+            background: #1f4037;
             color: white;
             text-align: center;
             padding: 20px;
             font-size: 24px;
             font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         .chat-container {
             display: flex;
             flex-direction: column;
             flex-grow: 1;
             margin: 10px;
-            background: white;
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             overflow: hidden;
@@ -36,7 +38,8 @@
             flex-grow: 1;
             padding: 20px;
             overflow-y: auto;
-            background: #f9f9f9;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
         .message {
             margin-bottom: 10px;
@@ -46,20 +49,19 @@
             word-wrap: break-word;
         }
         .message.user {
-            background: #1c92d2;
+            background: #2e8b57;
             color: white;
             align-self: flex-end;
         }
         .message.bot {
-            background: #f2fcfe;
-            border: 1px solid #1c92d2;
-            color: black;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
             align-self: flex-start;
         }
         .input-container {
             display: flex;
             padding: 10px;
-            background: #1c92d2;
+            background: #1f4037;
         }
         .input-container input {
             flex-grow: 1;
@@ -70,8 +72,8 @@
             margin-right: 10px;
         }
         .input-container button {
-            background: white;
-            color: #1c92d2;
+            background: #2e8b57;
+            color: white;
             border: none;
             border-radius: 5px;
             padding: 10px 20px;
@@ -79,9 +81,9 @@
             cursor: pointer;
         }
         .persona-selector {
-            background: #ffffff;
+            background: #1f4037;
             padding: 10px;
-            border-bottom: 1px solid #1c92d2;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -89,17 +91,18 @@
         .persona-selector select {
             padding: 10px;
             border-radius: 5px;
-            border: 1px solid #1c92d2;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
     </style>
 </head>
 <body>
-    <header>Chat with Bots</header>
+    <header>Chat with Jarvis</header>
 
     <div class="chat-container">
         <div class="persona-selector">
             <h3>Choose Persona:</h3>
             <select id="personaSelect">
+                <option value="jarvis">Jarvis</option>
                 <option value="satoruGojo">Satoru Gojo</option>
                 <option value="diablo">Diablo</option>
                 <option value="ainzOoalGown">Ainz Ooal Gown</option>
@@ -115,7 +118,16 @@
     </div>
 
     <script>
-        const personas = {
+        let personas = {
+            jarvis: {
+                botName: "Jarvis",
+                defaultResponse: "How can I assist you today?",
+                customResponses: {
+                    "Who are you?": "I am Jarvis, your personal AI assistant. I am here to assist with anything you need.",
+                    "What is your purpose?": "My purpose is to make your life easier by providing assistance and solving problems.",
+                },
+                backstory: "Developed by Tony Stark, I am an advanced AI capable of complex problem-solving and providing intelligent insights."
+            },
             satoruGojo: {
                 botName: "Satoru Gojo",
                 defaultResponse: "I'm not sure how to respond, but I'm the strongest!",
@@ -148,7 +160,23 @@
             }
         };
 
-        let currentPersona = personas.satoruGojo;
+        function loadCustomPersonas() {
+            const savedData = JSON.parse(localStorage.getItem("customResponses"));
+            if (savedData) {
+                personas = { ...personas, ...savedData };
+                const personaSelect = document.getElementById("personaSelect");
+                for (const key in savedData) {
+                    if (!Array.from(personaSelect.options).some(option => option.value === key)) {
+                        const option = document.createElement("option");
+                        option.value = key;
+                        option.textContent = savedData[key].botName || key;
+                        personaSelect.appendChild(option);
+                    }
+                }
+            }
+        }
+
+        let currentPersona = personas.jarvis;
 
         function addMessage(text, sender) {
             const messageDiv = document.createElement("div");
@@ -182,8 +210,8 @@
             addMessage(`Switched to ${currentPersona.botName}.`, "bot");
         });
 
+        loadCustomPersonas();
         addMessage(`${currentPersona.botName}: Welcome to the chat!`, "bot");
     </script>
 </body>
 </html>
-
