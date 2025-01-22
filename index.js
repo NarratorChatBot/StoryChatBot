@@ -8,26 +8,43 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// API Rate Limiter (z. B. 100 Anfragen pro 15 Minuten pro IP)
+// Überprüfen, ob der API-Schlüssel vorhanden ist
+if (!process.env.OPENAI_API_KEY) {
+    console.error("Missing OpenAI API Key in environment variables.");
+    process.exit(1);
+}
+
+// OpenAI-Konfiguration
+const configuration = new Configuration({
+    apiKey: process.env.OPENAI_API_KEY,
+});
+const openai = new OpenAIApi(configuration);
+
+// API Rate Limiter (z. B. 200 Anfragen pro 10 Minuten pro IP)
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 Minuten
-    max: 100, // Maximal 100 Anfragen
+    windowMs: 10 * 60 * 1000, // 10 Minuten
+    max: 200, // Maximal 200 Anfragen
     message: "Too many requests from this IP, please try again later.",
 });
 app.use(limiter);
 
-// OpenAI-Konfiguration
-const configuration = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY, // API-Schlüssel aus der .env-Datei
+// Protokollierung aller eingehenden Anfragen
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
 });
-const openai = new OpenAIApi(configuration);
 
 // Chatbot-Endpunkt
 app.post("/chat", async (req, res) => {
     const { message, persona } = req.body;
 
-    if (!message || !persona) {
-        return res.status(400).json({ error: "Message and persona are required." });
+    // Eingabevalidierung
+    if (typeof message !== "string" || message.trim().length === 0) {
+        return res.status(400).json({ error: "Message must be a non-empty string." });
+    }
+
+    if (typeof persona !== "string" || persona.trim().length === 0) {
+        return res.status(400).json({ error: "Persona must be a non-empty string." });
     }
 
     const systemMessage = `You are ${persona}. Respond accordingly.`;
@@ -44,8 +61,13 @@ app.post("/chat", async (req, res) => {
         const botReply = response.data.choices[0].message.content;
         res.json({ reply: botReply });
     } catch (error) {
-        console.error("Error with OpenAI API:", error.message);
-        res.status(500).json({ error: "Failed to fetch a response from OpenAI." });
+        if (error.response) {
+            console.error("OpenAI API Error:", error.response.data);
+            res.status(500).json({ error: error.response.data.error.message });
+        } else {
+            console.error("Unexpected Error:", error.message);
+            res.status(500).json({ error: "Unexpected server error." });
+        }
     }
 });
 
