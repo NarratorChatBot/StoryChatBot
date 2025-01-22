@@ -1,21 +1,35 @@
 const express = require("express");
 const cors = require("cors");
 const { Configuration, OpenAIApi } = require("openai");
+const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Konfiguration der OpenAI API
+// API Rate Limiter (z. B. 100 Anfragen pro 15 Minuten pro IP)
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 Minuten
+    max: 100, // Maximal 100 Anfragen
+    message: "Too many requests from this IP, please try again later.",
+});
+app.use(limiter);
+
+// OpenAI-Konfiguration
 const configuration = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: process.env.OPENAI_API_KEY, // API-Schlüssel aus der .env-Datei
 });
 const openai = new OpenAIApi(configuration);
 
-// Endpunkt für Chatbot-Anfragen
+// Chatbot-Endpunkt
 app.post("/chat", async (req, res) => {
     const { message, persona } = req.body;
+
+    if (!message || !persona) {
+        return res.status(400).json({ error: "Message and persona are required." });
+    }
+
     const systemMessage = `You are ${persona}. Respond accordingly.`;
 
     try {
@@ -26,13 +40,17 @@ app.post("/chat", async (req, res) => {
                 { role: "user", content: message },
             ],
         });
-        res.json({ reply: response.data.choices[0].message.content });
+
+        const botReply = response.data.choices[0].message.content;
+        res.json({ reply: botReply });
     } catch (error) {
-        console.error("Error with OpenAI API:", error);
-        res.status(500).json({ error: "Something went wrong." });
+        console.error("Error with OpenAI API:", error.message);
+        res.status(500).json({ error: "Failed to fetch a response from OpenAI." });
     }
 });
 
-// Server starten
+// Start Server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
